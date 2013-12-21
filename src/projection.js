@@ -268,6 +268,45 @@ Blind.getProjection = function(dict) {
 	var arcs = getArcs();
 
 	function getCones() {
+		var cones = [];
+
+		var segs = visibleSegments;
+		var i=0,len=segs.length;
+
+		function getNextCone() {
+			var s = segs[i];
+			var color = s.seg.box.color;
+			var points = [];
+			function addPoint(angle, dist) {
+				points.push({angle:angle, dist:dist});
+			}
+			addPoint(s.a0, s.d0);
+			addPoint(s.a1, s.d1);
+			var box = s.seg.box;
+			var a0 = s.a0;
+			var a1 = s.a1;
+			for (i=i+1; i<len; i++) {
+				s = segs[i];
+				if (s.a0 == a1 && s.seg.box == box) {
+					addPoint(s.a0, s.d0);
+					addPoint(s.a1, s.d1);
+					a1 = s.a1;
+				}
+				else {
+					break;
+				}
+			}
+			return {
+				color: color,
+				points: points,
+			};
+		}
+
+		while (i < len) {
+			cones.push(getNextCone());
+		}
+
+		return cones;
 	}
 
 	var cones = getCones();
@@ -307,39 +346,26 @@ Blind.drawCones = function(ctx, dict) {
 	var y = dict.y;
 	var proj = dict.projection;
 
-	function lineTo(angle,dist) {
+	function lineTo(point) {
 		ctx.lineTo(
-			x + Math.cos(angle) * dist,
-			y + Math.sin(angle) * dist
+			x + Math.cos(point.angle) * point.dist,
+			y + Math.sin(point.angle) * point.dist
 		);
 	}
 
-	var segs = proj.visibleSegments;
-	var i,len=segs.length;
-	var s;
+	var cones = proj.cones;
+	var i,len=cones.length;
+	var cone, points;
 	for (i=0; i<len; i++) {
-		s = segs[i];
-		ctx.fillStyle = s.seg.box.color;
+		cone = cones[i];
+		points = cone.points;
+		ctx.fillStyle = cone.color;
 		ctx.beginPath();
 		ctx.moveTo(x,y);
-		lineTo(s.a0, s.d0);
-		lineTo(s.a1, s.d1);
-		var box = s.seg.box;
-		var a0 = s.a0;
-		var a1 = s.a1;
-		var j;
-		for (j=i+1; j<len; j++) {
-			s = segs[j];
-			if (s.a0 == a1 && s.seg.box == box) {
-				lineTo(s.a0, s.d0);
-				lineTo(s.a1, s.d1);
-				a1 = s.a1;
-			}
-			else {
-				break;
-			}
+		var j,numPts = points.length;
+		for (j=0; j<numPts; j++) {
+			lineTo(points[j]);
 		}
-		i = j-1;
 		ctx.closePath();
 		ctx.fill();
 	}
