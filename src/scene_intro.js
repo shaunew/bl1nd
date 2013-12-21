@@ -1,5 +1,5 @@
 
-Blind.scene_game1 = (function(){
+Blind.scene_intro = (function(){
 	var script;
 	var map;
 
@@ -60,7 +60,7 @@ Blind.scene_game1 = (function(){
 		Blind.lid.open();
 
 
-		map = new Blind.Map(Blind.assets.json["map_game1"]);
+		map = new Blind.Map(Blind.assets.json["map_intro"]);
 		var i,len=map.boxes.length;
 		for (i=0; i<len; i++) {
 			if (map.boxes[i].name == 'couch') {
@@ -145,13 +145,13 @@ Blind.scene_game1 = (function(){
 			},
 		]);
 
-		Blind.camera.setCollideAction('couch', function() {
+		Blind.camera.addCollideAction('couch', function() {
 			Blind.caption.show('msg10',2);
 			script = new Blind.TimedScript([
 				{
 					time: 4,
 					action: function() {
-						Blind.setScene(Blind.scene_game2);
+						Blind.setScene(Blind.scene_intro_wall);
 					},
 				},
 			]);

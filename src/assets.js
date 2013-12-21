@@ -28,12 +28,22 @@ Blind.assets = (function(){
 		"msg12": "img/msg12.png",
 		"msg13": "img/msg13.png",
 		"msg14": "img/msg14.png",
+		"msg_wall00": "img/msg-wall00.png",
+		"msg_wall01": "img/msg-wall01.png",
+		"msg_wall02": "img/msg-wall02.png",
+		"msg_hall00": "img/msg-hall00.png",
+		"msg_hall01": "img/msg-hall01.png",
+		"msg_hall02": "img/msg-hall02.png",
+		"msg_corner00": "img/msg-corner00.png",
+		"msg_corner01": "img/msg-corner01.png",
 	};
 
 	var jsonSources = {
 		"map_title": "maps/title.json",
-		"map_game1": "maps/game1.json",
-		"map_game2": "maps/game2.json",
+		"map_intro": "maps/intro.json",
+		"map_intro_wall": "maps/intro-wall.json",
+		"map_intro_hall": "maps/intro-hall.json",
+		"map_intro_corner": "maps/intro-corner.json",
 	};
 
 	var json = {};

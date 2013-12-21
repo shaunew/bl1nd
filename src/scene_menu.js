@@ -147,7 +147,7 @@ Blind.scene_menu = (function(){
 			},
 			'end': function (mx,my) {
 				if (startedInsideNewGame && isInsideNewGameBtn(mx,my)) {
-					Blind.setScene(Blind.scene_game1);
+					Blind.setScene(Blind.scene_intro);
 				}
 				else if (startedInsideContinue && isInsideContinueBtn(mx,my)) {
 				}

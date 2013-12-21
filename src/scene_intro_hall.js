@@ -1,5 +1,5 @@
 
-Blind.scene_game2 = (function(){
+Blind.scene_intro_hall = (function(){
 	var script;
 	var map;
 
@@ -7,54 +7,39 @@ Blind.scene_game2 = (function(){
 		Blind.lid.reset();
 		Blind.lid.open();
 
+		map = new Blind.Map(Blind.assets.json["map_intro_hall"]);
 
-		map = new Blind.Map(Blind.assets.json["map_game2"]);
-		var i,len=map.boxes.length;
-		for (i=0; i<len; i++) {
-			if (map.boxes[i].name == 'couch') {
-				couch = map.boxes[i];
-				couch.hide = true;
-				break;
-			}
-		}
 		Blind.camera.init(map);
 		Blind.camera.enableViewKeys();
 		Blind.camera.enableMoveKeys();
-		Blind.camera.disableProjKeys();
+		Blind.camera.enableProjKeys();
 
-		Blind.camera.setPosition(0, 0);
-		Blind.camera.setAngle(-Math.PI/2);
+		Blind.camera.setPosition(369.3045583919707, -39.186266015308824);
+		Blind.camera.setAngle(1.5451420811868786);
 		Blind.camera.updateProjection();
 
 		script = new Blind.TimedScript([
 			{
 				time: 1,
 				action: function() {
-					Blind.caption.show('msg11', 2);
+					Blind.caption.show('msg_hall00', 2);
+				},
+			},
+			{
+				dt: 4,
+				action: function() {
+					Blind.caption.show('msg_hall01', 2);
 				},
 			},
 		]);
 
-		Blind.camera.setCollideAction('me', function() {
-			console.log('hi me');
-			Blind.caption.show('msg12',2);
+		Blind.camera.addCollideAction('me', function() {
+			Blind.caption.show('msg_hall02',2);
 			script = new Blind.TimedScript([
 				{
 					time: 4,
 					action: function() {
-						Blind.caption.show('msg13', 2);
-					},
-				},
-				{
-					dt: 4,
-					action: function() {
-						Blind.caption.show('msg14', 2);
-					},
-				},
-				{
-					dt: 4,
-					action: function() {
-						Blind.setScene(Blind.scene_title);
+						Blind.setScene(Blind.scene_intro_corner);
 					},
 				},
 			]);

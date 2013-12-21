@@ -8,11 +8,15 @@ Blind.camera = (function(){
 	// orientation
 	var angle=-Math.PI/2;
 
+	function print() {
+		console.log(x,y,angle);
+	}
+
 	// speed (per second)
 	var moveSpeed = 50;
 	var angleSpeed = Math.PI;
 
-	var collide = (function(){
+	var collideFlash = (function(){
 
 		var alphaDriver = new Blind.InterpDriver(
 			Blind.makeInterp('linear', [1,0], [0,0.25]),
@@ -134,7 +138,8 @@ Blind.camera = (function(){
 
 	function init(_map) {
 		map = _map;
-		collide.init();
+		collideFlash.init();
+		collideAction.reset();
 		updateProjection();
 	}
 
@@ -228,19 +233,67 @@ Blind.camera = (function(){
 
 	// ========================== COLLISION FUNCTIONS  =============================
 
-	var collideAction, collideName;
-	function setCollideAction(name, action) {
-		collideName = name;
-		collideAction = action;
-	}
-	function onCollide(box) {
-		collide.trigger();
-		if (collideAction) {
-			if (box.name == collideName) {
-				collideAction();
-				collideAction = null;
+	var collideAction = (function(){
+		var triggers = {};
+
+		function reset() {
+			triggers = {};
+		}
+
+		function clear(name) {
+			triggers[name] = [];
+		}
+		
+		function add(name, action) {
+			var t = triggers[name];
+			if (t) {
+				t.push(action);
+			}
+			else {
+				triggers[name] = [action];
 			}
 		}
+
+		function remove(name, action) {
+			var t = triggers[name];
+			if (t) {
+				var i = 0;
+				while (i < t.length) {
+					if (t[i] == action) {
+						t.splice(i,1);
+					}
+					else {
+						i++;
+					}
+				}
+			}
+		}
+
+		function exec(name) {
+			var t = triggers[name];
+			if (t) {
+				var i,len=t.length;
+				for (i=0; i<len; i++) {
+					t[i]();
+				}
+				clear(name);
+			}
+		}
+		
+		return {
+			reset: reset,
+			add: add,
+			remove: remove,
+			exec: exec,
+		};
+	})();
+
+	function addCollideAction(name, action) {
+		collideAction.add(name, action);
+	}
+	function onCollide(box) {
+		collideFlash.trigger();
+		collideAction.exec(box.name);
 	}
 
 	var collidePad = 0.01;
@@ -340,7 +393,7 @@ Blind.camera = (function(){
 
 		push.update(dt);
 		tilt.update(dt);
-		collide.update(dt);
+		collideFlash.update(dt);
 	}
 
 	function draw(ctx) {
@@ -368,7 +421,7 @@ Blind.camera = (function(){
 			ctx.setTransform(1,0,0,1,0,0);
 			ctx.translate(Blind.canvas.width/2, Blind.canvas.height/2 + push.getValue());
 
-			var collideAlpha = collide.getValue();
+			var collideAlpha = collideFlash.getValue();
 			if (collideAlpha) {
 				ctx.fillStyle = "rgba(200,200,200," + collideAlpha +")";
 				ctx.beginPath();
@@ -435,6 +488,7 @@ Blind.camera = (function(){
 		setAngle: setAngle,
 		update: update,
 		draw: draw,
-		setCollideAction: setCollideAction,
+		addCollideAction: addCollideAction,
+		print: print,
 	};
 })();
