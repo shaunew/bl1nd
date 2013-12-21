@@ -213,11 +213,71 @@ Blind.getProjection = function(dict) {
 	}
 
 	var visibleSegments = getVisibleSegments(refpoints);
+
+	function getArcs() {
+		var segs = visibleSegments;
+		var i=0,len=segs.length;
+
+		function getNextColorArc() {
+			var s = segs[i];
+			var color = s.seg.box.color;
+			var a0 = s.a0;
+			var a1 = s.a1;
+			for (i=i+1; i<len; i++) {
+				s = segs[i];
+				if (s.a0 == a1 && s.seg.box.color == color) {
+					a1 = s.a1;
+				}
+				else {
+					break;
+				}
+			}
+			return {
+				color: color,
+				a0: a0,
+				a1: a1,
+			};
+		}
+
+		var arcs = [];
+		while (i < len) {
+			arcs.push(getNextColorArc());
+		}
+
+		var numArcs = arcs.length;
+		var firstArc, lastArc;
+		if (numArcs > 0) {
+			firstArc = arcs[0];
+			lastArc = arcs[numArcs-1];
+			if (firstArc.color == lastArc.color &&
+				firstArc.a0 == -Math.PI && lastArc.a1 == Math.PI) {
+				if (firstArc == lastArc) {
+					firstArc.a0 = 0;
+					firstArc.a1 = Math.PI*2;
+				}
+				else {
+					firstArc.a0 = lastArc.a0 - Math.PI*2;
+					arcs.pop();
+				}
+			}
+		}
+
+		return arcs;
+	}
+
+	var arcs = getArcs();
+
+	function getCones() {
+	}
+
+	var cones = getCones();
 	
 	return {
 		segments: segments,
 		refpoints: refpoints,
 		visibleSegments: visibleSegments,
+		arcs: arcs,
+		cones: cones,
 	};
 };
 
@@ -230,27 +290,14 @@ Blind.drawArcs = function(ctx, dict) {
 
 	ctx.lineWidth = lineWidth;
 
-	var segs = proj.visibleSegments;
-	var i,len=segs.length;
-	var s;
+	var arcs = proj.arcs;
+	var i,len=arcs.length;
+	var arc;
 	for (i=0; i<len; i++) {
-		s = segs[i];
-		var color = ctx.strokeStyle = s.seg.box.color;
-		var a0 = s.a0;
-		var a1 = s.a1;
-		var j;
-		for (j=i+1; j<len; j++) {
-			s = segs[j];
-			if (s.a0 == a1 && s.seg.box.color == color) {
-				a1 = s.a1;
-			}
-			else {
-				break;
-			}
-		}
-		i = j-1;
+		arc = arcs[i];
+		ctx.strokeStyle = arc.color;
 		ctx.beginPath();
-		ctx.arc(x,y,radius,a0, a1, false);
+		ctx.arc(x,y,radius,arc.a0, arc.a1, false);
 		ctx.stroke();
 	}
 };
