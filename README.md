@@ -1,10 +1,8 @@
 # bl1nd
 
-This is an experimental 1D game made in 48 hours for Ludum Dare 28.
+This is an experimental 1D game.  (post-compo version of my entry to Ludum Dare 28)
 
 [>> PLAY HERE](http://shaunew.github.io/bl1nd)
-
-[>> LUDUM DARE ENTRY](http://www.ludumdare.com/compo/ludum-dare-28/?action=preview&uid=31638)
 
 ![logo](img/logo.png)
 
