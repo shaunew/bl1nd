@@ -28,21 +28,6 @@ Blind.assets = (function(){
 		"msg12": "img/msg12.png",
 		"msg13": "img/msg13.png",
 		"msg14": "img/msg14.png",
-		"msg15": "img/msg15.png",
-		"msg16": "img/msg16.png",
-		"msg17": "img/msg17.png",
-		"msg18": "img/msg18.png",
-		"msg19": "img/msg19.png",
-		"msg20": "img/msg20.png",
-		"msg21": "img/msg21.png",
-		"msg22": "img/msg22.png",
-		"msg23": "img/msg23.png",
-		"msg24": "img/msg24.png",
-		"msg25": "img/msg25.png",
-		"msg26": "img/msg26.png",
-		"msg27": "img/msg27.png",
-		"msg28": "img/msg28.png",
-		"msg29": "img/msg29.png",
 	};
 
 	var jsonSources = {
@@ -50,17 +35,6 @@ Blind.assets = (function(){
 		"map_game1": "maps/game1.json",
 		"map_game2": "maps/game2.json",
 	};
-
-	// Add secondary sources dependent on the primary sources listed above.
-	(function(){
-		var name;
-
-		// add metadata json sources to loading list
-		for (name in imageSources) {
-			jsonSources[name] = imageSources[name]+".json";
-		}
-
-	})();
 
 	var json = {};
 
@@ -76,27 +50,7 @@ Blind.assets = (function(){
 	// post-processed image structures
 	var fonts = {};
 
-	function postProcessImage(name) {
-
-		var meta = json[name];
-		console.log(name);
-
-		if (meta.font != undefined) {
-			if (!fonts[name]) {
-				console.log("creating font",name);
-				fonts[name] = new Blind.Font(images[name], meta);
-			}
-		}
-	};
-
 	function postProcess() {
-
-		var name;
-
-		// post-process images
-		for (name in imageSources) {
-			postProcessImage(name);
-		}
 	}
 
 	function load(onLoad) {
