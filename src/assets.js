@@ -10,10 +10,10 @@ Blind.assets = (function(){
 	var imageSources = {
 		"eye": "img/eye.png",
 		"title": "img/title.png",
-		"newgame": "img/newgame.png",
-		"continue": "img/continue.png",
+		"menu_tutorial": "img/tutorial.png",
+		"menu_play": "img/play.png",
+		"menu_freerun": "img/freerun.png",
 		"shift": "img/shift.png",
-		"freerun": "img/freerun.png",
 		"msg1": "img/msg1.png",
 		"msg2": "img/msg2.png",
 		"msg3": "img/msg3.png",

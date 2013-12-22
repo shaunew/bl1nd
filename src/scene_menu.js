@@ -119,18 +119,18 @@ Blind.scene_menu = (function(){
 	})();
 
 	var buttons = (function() {
-		var imgNewGame, imgContinue, imgFreeRun;
+		var imgTutorial, imgPlay, imgFreeRun;
 		var x=12,y0=160,y1=200,y2=240;
 		var enabled;
 
-		function isInsideNewGameBtn(mx,my) {
-			return (x  <= mx && mx <= x  + imgNewGame.width &&
-				y0 <= my && my <= y0 + imgNewGame.height);
+		function isInsideTutorialBtn(mx,my) {
+			return (x  <= mx && mx <= x  + imgTutorial.width &&
+				y0 <= my && my <= y0 + imgTutorial.height);
 		}
 
-		function isInsideContinueBtn(mx, my) {
-			return (x  <= mx && mx <= x  + imgContinue.width &&
-				y1 <= my && my <= y1 + imgContinue.height);
+		function isInsidePlayBtn(mx, my) {
+			return (x  <= mx && mx <= x  + imgPlay.width &&
+				y1 <= my && my <= y1 + imgPlay.height);
 		}
 
 		function isInsideFreeRunBtn(mx, my) {
@@ -138,18 +138,18 @@ Blind.scene_menu = (function(){
 				y2 <= my && my <= y2 + imgFreeRun.height);
 		}
 
-		var startedInsideNewGame, startedInsideContinue, startedInsideFreeRun;
+		var startedInsideTutorial, startedInsidePlay, startedInsideFreeRun;
 		var mouseHandler = {
 			'start': function (mx,my) {
-				startedInsideNewGame = isInsideNewGameBtn(mx,my);
-				startedInsideContinue = isInsideContinueBtn(mx,my);
+				startedInsideTutorial = isInsideTutorialBtn(mx,my);
+				startedInsidePlay = isInsidePlayBtn(mx,my);
 				startedInsideFreeRun = isInsideFreeRunBtn(mx,my);
 			},
 			'end': function (mx,my) {
-				if (startedInsideNewGame && isInsideNewGameBtn(mx,my)) {
+				if (startedInsideTutorial && isInsideTutorialBtn(mx,my)) {
 					Blind.setScene(Blind.scene_intro);
 				}
-				else if (startedInsideContinue && isInsideContinueBtn(mx,my)) {
+				else if (startedInsidePlay && isInsidePlayBtn(mx,my)) {
 				}
 				else if (startedInsideFreeRun && isInsideFreeRunBtn(mx,my)) {
 					Blind.setScene(Blind.scene_freerun);
@@ -158,7 +158,7 @@ Blind.scene_menu = (function(){
 		};
 
 		var alphaDriver = new Blind.InterpDriver(
-			Blind.makeInterp('linear', [0, 1], [0, 1]),
+			Blind.makeInterp('linear', [0, 0.6], [0, 1]),
 			{
 				loop: false,
 				freezeAtEnd: true,
@@ -176,9 +176,9 @@ Blind.scene_menu = (function(){
 		function init() {
 			disable();
 			alphaDriver.reset();
-			imgNewGame = Blind.assets.images["newgame"];
-			imgContinue = Blind.assets.images["continue"];
-			imgFreeRun = Blind.assets.images["freerun"];
+			imgTutorial = Blind.assets.images["menu_tutorial"];
+			imgPlay = Blind.assets.images["menu_play"];
+			imgFreeRun = Blind.assets.images["menu_freerun"];
 		}
 		
 		function draw(ctx) {
@@ -186,11 +186,10 @@ Blind.scene_menu = (function(){
 			
 			if (enabled && alpha) {
 				ctx.globalAlpha = alpha;
-				ctx.drawImage(imgNewGame, x, y0);
-				ctx.globalAlpha = ctx.globalAlpha * 0.2;
-				ctx.drawImage(imgContinue, x, y1);
-				ctx.globalAlpha = 1;
+				ctx.drawImage(imgTutorial, x, y0);
+				ctx.drawImage(imgPlay, x, y1);
 				ctx.drawImage(imgFreeRun, x, y2);
+				ctx.globalAlpha = 1;
 			}
 		}
 
@@ -228,11 +227,6 @@ Blind.scene_menu = (function(){
 				time: 2,
 				action: function() {
 					shiftCaption.enable();
-				},
-			},
-			{
-				time: 4,
-				action: function() {
 					buttons.enable();
 				},
 			},

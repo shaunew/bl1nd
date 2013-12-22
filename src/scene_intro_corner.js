@@ -33,6 +33,7 @@ Blind.scene_intro_corner = (function(){
 				{
 					time: 4,
 					action: function() {
+						Blind.setScene(Blind.scene_stages);
 					},
 				},
 			]);
