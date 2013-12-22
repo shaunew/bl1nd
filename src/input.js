@@ -26,19 +26,22 @@ Blind.input = (function(){
 	};
 
 	function keyHelper(keyDir,keyName) {
+		var used = false;
 		forEachKeyHandler(function(handler) {
 			if (handler[keyDir] && handler[keyDir][keyName]) {
 				handler[keyDir][keyName]();
+				used = true;
 			}
 		});
+		return used;
 	}
 
 	function keyDown(keyName) {
-		keyHelper('press',keyName);
+		return keyHelper('press',keyName);
 	}
 
 	function keyUp(keyName) {
-		keyHelper('release',keyName);
+		return keyHelper('release',keyName);
 	}
 
 	// ====================== MOUSE ==========================
@@ -177,7 +180,7 @@ Blind.input = (function(){
 			return function(evt) {
 				var name = getKeyNameFromCode(evt.keyCode);
 				if (name) {
-					f(name);
+					f(name) && evt.preventDefault();
 				}
 			};
 		}
