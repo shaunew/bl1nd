@@ -10,6 +10,7 @@ Blind.Mapper.scene_edit = (function(){
 	}
 
 	function update(dt) {
+		Blind.Mapper.model.update(dt);
 	}
 
 	function draw(ctx) {

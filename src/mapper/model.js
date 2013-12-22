@@ -13,6 +13,7 @@ Blind.Mapper.model = (function(){
 		playerSelected = true;
 		selectedIndex = null;
 		refreshNameDisplay();
+		updateProjection();
 	}
 
 	var selectedIndex;
@@ -216,14 +217,66 @@ Blind.Mapper.model = (function(){
 		Blind.input.removeMouseHandler(mouseHandler);
 	}
 
+	// KEY FUNCTIONS
+
+	var angleSpeed = Math.PI;
+	var controls = {
+		"turnLeft": false,
+		"turnRight": false,
+	};
+	function clearControls() {
+		var name;
+		for (name in controls) {
+			controls[name] = false;
+		}
+	};
+	var keyHandler = {
+		'press': {
+			'left': function() {
+				controls["turnLeft"] = true;
+			},
+			'right': function() {
+				controls["turnRight"] = true;
+			},
+		},
+		'release': {
+			'left': function() {
+				controls["turnLeft"] = false;
+			},
+			'right': function() {
+				controls["turnRight"] = false;
+			},
+		}
+	};
+
+	function enableKeys() {
+		Blind.input.addKeyHandler(keyHandler);
+	}
+
+	function disableKeys() {
+		Blind.input.removeKeyHandler(keyHandler);
+	}
+
 	// MAIN FUNCTIONS
 
 	function init() {
+		clearControls();
 		enableMouse();
+		enableKeys();
 	}
 
 	function cleanup() {
 		disableMouse();
+		disableKeys();
+	}
+
+	function update(dt) {
+		if (controls["turnLeft"]) {
+			player.angle -= angleSpeed*dt;
+		}
+		if (controls["turnRight"]) {
+			player.angle += angleSpeed*dt;
+		}
 	}
 
 	function draw(ctx) {
@@ -249,13 +302,6 @@ Blind.Mapper.model = (function(){
 		ctx.fill();
 
 		if (playerSelected) {
-			Blind.drawArcs(ctx, {
-				x: player.x,
-				y: player.y,
-				radius: 30,
-				lineWidth: 9,
-				projection: projection,
-			});
 			ctx.globalAlpha = 0.2;
 			Blind.drawCones(ctx, {
 				x: player.x,
@@ -263,6 +309,20 @@ Blind.Mapper.model = (function(){
 				projection: projection,
 			});
 			ctx.globalAlpha = 1;
+			Blind.drawArcs(ctx, {
+				x: player.x,
+				y: player.y,
+				radius: 30,
+				lineWidth: 9,
+				projection: projection,
+			});
+			ctx.beginPath();
+			var startAngle = player.angle + Math.PI/4;
+			var endAngle = startAngle + 2*Math.PI/4*3;
+			ctx.arc(player.x, player.y, 30, startAngle, endAngle);
+			ctx.lineWidth = 10;
+			ctx.strokeStyle = "rgba(0,0,0,0.5)";
+			ctx.stroke();
 		}
 	}
 
@@ -270,6 +330,7 @@ Blind.Mapper.model = (function(){
 		init: init,
 		cleanup: cleanup,
 		draw: draw,
+		update: update,
 		addBox: addBox,
 		removeBox: removeBox,
 		duplicateBox: duplicateBox,
