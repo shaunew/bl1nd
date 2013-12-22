@@ -1,14 +1,13 @@
 Blind.Mapper.model = (function(){
 
-	var boxes = [];
+	var map;
+
+	// references to map player and boxes properties
+	var player, boxes;
 
 	// INDEX SELECTION
 
 	var selectedIndex;
-	function clearBoxes() {
-		boxes.length = 0;
-		selectIndex(null);
-	}
 	function selectIndex(i) {
 		selectedIndex = i;
 		refreshNameDisplay();
@@ -27,30 +26,19 @@ Blind.Mapper.model = (function(){
 
 	// STATE SET & GET
 
-	function setBoxStates(states) {
-		clearBoxes();
-		var i,len=states.length;
-		for (i=0; i<len; i++) {
-			boxes.push(new Blind.Box(states[i]));
-		}
+	function setMapState(state) {
+		selectIndex(null);
+		map = new Blind.Map(state);
+		player = map.player;
+		boxes = map.boxes;
 	}
 
-	function getBoxStates() {
-		var states = [];
-		var i,len=boxes.length;
-		var b;
-		for (i=0; i<len; i++) {
-			b = boxes[i];
-			states.push({
-				x: b.x,
-				y: b.y,
-				w: b.w,
-				h: b.h,
-				color: b.color,
-				name: b.name,
-			});
-		}
-		return states;
+	function getMapState() {
+		return map.getState();
+	}
+
+	function getMap() {
+		return map;
 	}
 
 	// INTERFACE FUNCTIONS
@@ -186,10 +174,18 @@ Blind.Mapper.model = (function(){
 		Blind.input.addMouseHandler(mouseHandler);
 	}
 
+	function disableMouse() {
+		Blind.input.removeMouseHandler(mouseHandler);
+	}
+
 	// MAIN FUNCTIONS
 
 	function init() {
 		enableMouse();
+	}
+
+	function cleanup() {
+		disableMouse();
 	}
 
 	function draw(ctx) {
@@ -208,14 +204,15 @@ Blind.Mapper.model = (function(){
 
 	return {
 		init: init,
+		cleanup: cleanup,
 		draw: draw,
 		addBox: addBox,
 		removeBox: removeBox,
 		duplicateBox: duplicateBox,
 		renameBox: renameBox,
 		colorBox: colorBox,
-		clearBoxes: clearBoxes,
-		setBoxStates: setBoxStates,
-		getBoxStates: getBoxStates,
+		setMapState: setMapState,
+		getMapState: getMapState,
+		getMap: getMap,
 	};
 })();

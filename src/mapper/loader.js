@@ -12,17 +12,27 @@ Blind.Mapper.loader = (function(){
 	}
 
 	function reset() {
-		Blind.Mapper.model.clearBoxes();
+		Blind.Mapper.model.setMapState(null);
 	}
 
 	function getState() {
 		return {
-			boxes: Blind.Mapper.model.getBoxStates(),
+			version: 2,
+			map: Blind.Mapper.getMapState(),
 		};
 	}
 
 	function setState(state) {
-		Blind.Mapper.model.setBoxStates(state.boxes);
+		if (!state.version) {
+			// backwards compatibility
+			var state2 = {
+				boxes: state.boxes,
+			};
+			Blind.Mapper.model.setMapState(state2);
+		}
+		else {
+			Blind.Mapper.model.setMapState(state.map);
+		}
 		backup();
 	}
 
@@ -85,6 +95,7 @@ Blind.Mapper.loader = (function(){
 	}
 
 	return {
+		getState: getState,
 		backup: backup,
 		restore: restore,
 		handleOpenFile: handleOpenFile,

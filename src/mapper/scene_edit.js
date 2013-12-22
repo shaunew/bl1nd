@@ -1,8 +1,12 @@
 
-Blind.Mapper.scene = (function(){
+Blind.Mapper.scene_edit = (function(){
 	
 	function init() {
 		Blind.Mapper.model.init();
+	}
+
+	function cleanup() {
+		Blind.Mapper.model.cleanup();
 	}
 
 	function update(dt) {
@@ -19,6 +23,7 @@ Blind.Mapper.scene = (function(){
 
 	return {
 		init: init,
+		cleanup: cleanup,
 		update: update,
 		draw: draw,
 	};
