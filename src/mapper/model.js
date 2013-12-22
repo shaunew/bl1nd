@@ -68,6 +68,7 @@ Blind.Mapper.model = (function(){
 		boxes.push(new Blind.Box({x:0, y:0, w:50, h:50, color:"#AAA"}));
 		selectIndex(boxes.length-1);
 		Blind.Mapper.loader.backup();
+		updateProjection();
 	}
 
 	function removeBox() {
@@ -75,6 +76,7 @@ Blind.Mapper.model = (function(){
 			boxes.splice(selectedIndex, 1);
 			selectIndex(null);
 			Blind.Mapper.loader.backup();
+			updateProjection();
 		}
 	}
 
@@ -88,6 +90,7 @@ Blind.Mapper.model = (function(){
 			boxes.push(b2);
 			selectIndex(boxes.length-1);
 			Blind.Mapper.loader.backup();
+			updateProjection();
 		}
 	}
 
@@ -109,6 +112,7 @@ Blind.Mapper.model = (function(){
 			var box = boxes[selectedIndex];
 			box.color = color;
 			Blind.Mapper.loader.backup();
+			updateProjection();
 		}
 	}
 
@@ -117,8 +121,7 @@ Blind.Mapper.model = (function(){
 			var box = boxes[selectedIndex];
 			bootbox.prompt("Change box color:", "Cancel", "OK", function(result) {
 				if (result != null) {
-					box.color = result;
-					Blind.Mapper.loader.backup();
+					setColor(result);
 				}
 			}, box.color || "");
 		}
@@ -138,6 +141,7 @@ Blind.Mapper.model = (function(){
 				return function(x,y) {
 					box.w = Math.max(10, x-dx - box.x);
 					box.h = Math.max(10, y-dy - box.y);
+					updateProjection();
 				};
 			}
 		}
@@ -150,6 +154,7 @@ Blind.Mapper.model = (function(){
 				return function(x,y) {
 					box.x = x - dx;
 					box.y = y - dy;
+					updateProjection();
 				};
 			}
 		}
@@ -279,20 +284,20 @@ Blind.Mapper.model = (function(){
 	}
 
 	function update(dt) {
-		if (playerSelected) {
-			if (controls["turnLeft"]) {
-				player.angle -= angleSpeed*dt;
-			}
-			if (controls["turnRight"]) {
-				player.angle += angleSpeed*dt;
-			}
+		if (controls["turnLeft"]) {
+			player.angle -= angleSpeed*dt;
+		}
+		if (controls["turnRight"]) {
+			player.angle += angleSpeed*dt;
 		}
 	}
 
 	function draw(ctx) {
+		//var drawPersp = playerSelected;
+		var drawPersp = true;
 		var i,len = boxes.length;
 		var b;
-		if (playerSelected) {
+		if (drawPersp) {
 			ctx.globalAlpha = 0.6;
 		}
 		for (i=0; i<len; i++) {
@@ -311,7 +316,7 @@ Blind.Mapper.model = (function(){
 		ctx.fillStyle = "#FFF";
 		ctx.fill();
 
-		if (playerSelected) {
+		if (drawPersp) {
 			ctx.globalAlpha = 0.2;
 			Blind.drawCones(ctx, {
 				x: player.x,
