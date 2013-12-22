@@ -271,11 +271,13 @@ Blind.Mapper.model = (function(){
 	}
 
 	function update(dt) {
-		if (controls["turnLeft"]) {
-			player.angle -= angleSpeed*dt;
-		}
-		if (controls["turnRight"]) {
-			player.angle += angleSpeed*dt;
+		if (playerSelected) {
+			if (controls["turnLeft"]) {
+				player.angle -= angleSpeed*dt;
+			}
+			if (controls["turnRight"]) {
+				player.angle += angleSpeed*dt;
+			}
 		}
 	}
 
