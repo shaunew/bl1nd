@@ -65,7 +65,7 @@ Blind.Mapper.model = (function(){
 	// INTERFACE FUNCTIONS
 
 	function addBox() {
-		boxes.push(new Blind.Box({x:0, y:0, w:50, h:50, color:"#AAA"}));
+		boxes.push(new Blind.Box({x:0, y:0, w:50, h:50, color:"blue"}));
 		selectIndex(boxes.length-1);
 		Blind.Mapper.loader.backup();
 		updateProjection();
@@ -113,17 +113,6 @@ Blind.Mapper.model = (function(){
 			box.color = color;
 			Blind.Mapper.loader.backup();
 			updateProjection();
-		}
-	}
-
-	function colorBox() {
-		if (selectedIndex != null) {
-			var box = boxes[selectedIndex];
-			bootbox.prompt("Change box color:", "Cancel", "OK", function(result) {
-				if (result != null) {
-					setColor(result);
-				}
-			}, box.color || "");
 		}
 	}
 
@@ -350,7 +339,6 @@ Blind.Mapper.model = (function(){
 		removeBox: removeBox,
 		duplicateBox: duplicateBox,
 		renameBox: renameBox,
-		colorBox: colorBox,
 		setColor: setColor,
 		setMapState: setMapState,
 		getMapState: getMapState,

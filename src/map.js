@@ -5,11 +5,16 @@ Blind.Box = function(dict) {
 	this.name = dict.name || "";
 	this.w = dict.w;
 	this.h = dict.h;
+
+	// for backwards compatibility when we used specific colors instead of names
+	if (this.color[0] == "#") {
+		this.color = Blind.getColorName(this.color) || "blue";
+	}
 };
 
 Blind.Box.prototype = {
 	draw: function(ctx) {
-		ctx.fillStyle = this.color;
+		ctx.fillStyle = Blind.colors[this.color].dark;
 		ctx.fillRect(this.x, this.y, this.w, this.h);
 	},
 };

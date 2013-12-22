@@ -96,13 +96,12 @@ canvas.color-box {
 			</button>
 
 		<ul class="dropdown-menu">
-			<li> <a onclick="Blind.Mapper.model.colorBox()" href="#" >Custom</a> </li>
-			<li> <a onclick="Blind.Mapper.model.setColor('#cc0000')" href="#" ><canvas class="color-box" style="background-color:#cc0000"></canvas> Red</a> </li>
-			<li> <a onclick="Blind.Mapper.model.setColor('#f57900')" href="#" ><canvas class="color-box" style="background-color:#f57900"></canvas> Orange</a> </li>
-			<li> <a onclick="Blind.Mapper.model.setColor('#edd400')" href="#" ><canvas class="color-box" style="background-color:#edd400"></canvas> Yellow</a> </li>
-			<li> <a onclick="Blind.Mapper.model.setColor('#73d216')" href="#" ><canvas class="color-box" style="background-color:#73d216"></canvas> Green</a> </li>
-			<li> <a onclick="Blind.Mapper.model.setColor('#3465a4')" href="#" ><canvas class="color-box" style="background-color:#3465a4"></canvas> Blue</a> </li>
-			<li> <a onclick="Blind.Mapper.model.setColor('#75507b')" href="#" ><canvas class="color-box" style="background-color:#75507b"></canvas> Purple</a> </li>
+			<li> <a onclick="Blind.Mapper.model.setColor('yellow')" href="#" ><canvas class="color-box" style="background-color:#cc0000"></canvas> Red</a> </li>
+			<li> <a onclick="Blind.Mapper.model.setColor('orange')" href="#" ><canvas class="color-box" style="background-color:#f57900"></canvas> Orange</a> </li>
+			<li> <a onclick="Blind.Mapper.model.setColor('red')"    href="#" ><canvas class="color-box" style="background-color:#edd400"></canvas> Yellow</a> </li>
+			<li> <a onclick="Blind.Mapper.model.setColor('green')"  href="#" ><canvas class="color-box" style="background-color:#73d216"></canvas> Green</a> </li>
+			<li> <a onclick="Blind.Mapper.model.setColor('blue')"   href="#" ><canvas class="color-box" style="background-color:#3465a4"></canvas> Blue</a> </li>
+			<li> <a onclick="Blind.Mapper.model.setColor('purple')" href="#" ><canvas class="color-box" style="background-color:#75507b"></canvas> Purple</a> </li>
 		</ul>
 	</div>
 	<div class="btn-group">
@@ -121,6 +120,7 @@ canvas.color-box {
 <script src="lib/bootbox.min.js"></script>
 
 <script src="src/blind.js"></script>
+<script src="src/colors.js"></script>
 <script src="src/interp.js"></script>
 <script src="src/assets.js"></script>
 <script src="src/executive.js"></script>

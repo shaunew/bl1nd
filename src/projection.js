@@ -5,6 +5,9 @@ Blind.Segment = function(dict) {
 	this.y0 = dict.y0;
 	this.x1 = dict.x1;
 	this.y1 = dict.y1;
+	this.isCorner0 = dict.isCorner0;
+	this.isCorner1 = dict.isCorner1;
+	this.color = dict.color;
 
 	this.recalc();
 };
@@ -42,6 +45,7 @@ Blind.getProjection = function(dict) {
 			segments: [],
 			refpoints: [],
 			visibleSegments: [],
+			corners: [],
 			arcs: [],
 			cones: [],
 		};
@@ -50,16 +54,25 @@ Blind.getProjection = function(dict) {
 	function getSegments() {
 		var segments = [];
 		var vsegs = [];
-		function processVSeg(box,x,y0,y1) {
+		function processVSeg(box,x,y0,y1, isCorner0, isCorner1) {
+			if (isCorner0 == null) {
+				isCorner0 = true;
+			}
+			if (isCorner1 == null) {
+				isCorner1 = true;
+			}
 			if (x<0 && y0 < 0 && y1 > 0) {
-				processVSeg(box, x,y0,0);
-				processVSeg(box, x,0,y1);
+				processVSeg(box, x,y0,0, true, false);
+				processVSeg(box, x,0,y1, false, true);
 			}
 			else {
 				var seg = new Blind.Segment({
 					box: box,
+					color: Blind.colors[box.color].dark,
 					x0: x, y0: y0,
 					x1: x, y1: y1,
+					isCorner0: isCorner0,
+					isCorner1: isCorner1,
 					type: 'v',
 				});
 				segments.push(seg);
@@ -99,8 +112,11 @@ Blind.getProjection = function(dict) {
 			if (cuts.length == 0) {
 				segments.push(new Blind.Segment({
 					box: box,
+					color: Blind.colors[box.color].medium,
 					x0: x0, y0: y,
 					x1: x1, y1: y,
+					isCorner0: true,
+					isCorner1: true,
 					type: 'h',
 				}));
 			}
@@ -111,8 +127,11 @@ Blind.getProjection = function(dict) {
 				for (i=0; i<len-1; i++) {
 					segments.push(new Blind.Segment({
 						box: box,
+					color: Blind.colors[box.color].medium,
 						x0: cuts[i], y0: y,
 						x1: cuts[i+1], y1: y,
+						isCorner0: true,
+						isCorner1: true,
 						type: 'h',
 					}));
 				}
@@ -280,18 +299,43 @@ Blind.getProjection = function(dict) {
 
 	var visibleSegments = getVisibleSegments(refpoints);
 
+	function getCorners() {
+		var corners = [];
+		var segs = visibleSegments;
+		var i,len=segs.length;
+		var s;
+		for (i=0; i<len; i++) {
+			s = segs[i];
+			if (s.seg.isCorner0 && s.a0 <= s.seg.angle0 && s.seg.angle0 <= s.a1) {
+				corners.push({
+					angle: s.seg.angle0,
+					dist: s.seg.getDistAtAngle(s.seg.angle0),
+				});
+			}
+			if (s.seg.isCorner1 && s.a0 <= s.seg.angle1 && s.seg.angle1 <= s.a1) {
+				corners.push({
+					angle: s.seg.angle1,
+					dist: s.seg.getDistAtAngle(s.seg.angle1),
+				});
+			}
+		}
+		return corners;
+	}
+
+	var corners = getCorners();
+
 	function getArcs() {
 		var segs = visibleSegments;
 		var i=0,len=segs.length;
 
 		function getNextColorArc() {
 			var s = segs[i];
-			var color = s.seg.box.color;
+			var color = s.seg.color;
 			var a0 = s.a0;
 			var a1 = s.a1;
 			for (i=i+1; i<len; i++) {
 				s = segs[i];
-				if (s.a0 == a1 && s.seg.box.color == color) {
+				if (s.a0 == a1 && s.seg.color == color) {
 					a1 = s.a1;
 				}
 				else {
@@ -341,7 +385,7 @@ Blind.getProjection = function(dict) {
 
 		function getNextCone() {
 			var s = segs[i];
-			var color = s.seg.box.color;
+			var color = s.seg.color;
 			var points = [];
 			function addPoint(angle, dist) {
 				points.push({angle:angle, dist:dist});
@@ -353,7 +397,7 @@ Blind.getProjection = function(dict) {
 			var a1 = s.a1;
 			for (i=i+1; i<len; i++) {
 				s = segs[i];
-				if (s.a0 == a1 && s.seg.box == box) {
+				if (s.a0 == a1 && s.seg.box == box && s.seg.color == color) {
 					addPoint(s.a0, s.d0);
 					addPoint(s.a1, s.d1);
 					a1 = s.a1;
@@ -381,6 +425,7 @@ Blind.getProjection = function(dict) {
 		segments: segments,
 		refpoints: refpoints,
 		visibleSegments: visibleSegments,
+		corners: corners,
 		arcs: arcs,
 		cones: cones,
 	};
