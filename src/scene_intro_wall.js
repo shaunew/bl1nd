@@ -12,11 +12,7 @@ Blind.scene_intro_wall = (function(){
 		Blind.camera.init(map);
 		Blind.camera.enableViewKeys();
 		Blind.camera.enableMoveKeys();
-		Blind.camera.enableProjKeys();
-
-		Blind.camera.setPosition(344.83477923125224, 139.8360962546366);
-		Blind.camera.setAngle(1.574607078670866);
-		Blind.camera.updateProjection();
+		Blind.camera.disableProjKeys();
 
 		script = new Blind.TimedScript([
 			{

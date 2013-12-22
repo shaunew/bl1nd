@@ -12,11 +12,7 @@ Blind.scene_intro_hall = (function(){
 		Blind.camera.init(map);
 		Blind.camera.enableViewKeys();
 		Blind.camera.enableMoveKeys();
-		Blind.camera.enableProjKeys();
-
-		Blind.camera.setPosition(369.3045583919707, -39.186266015308824);
-		Blind.camera.setAngle(1.5451420811868786);
-		Blind.camera.updateProjection();
+		Blind.camera.disableProjKeys();
 
 		script = new Blind.TimedScript([
 			{

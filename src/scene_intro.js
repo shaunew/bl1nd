@@ -74,10 +74,6 @@ Blind.scene_intro = (function(){
 		Blind.camera.disableMoveKeys();
 		Blind.camera.disableProjKeys();
 
-		Blind.camera.setPosition(356, 90);
-		Blind.camera.setAngle(-Math.PI/2);
-		Blind.camera.updateProjection();
-
 		script = new Blind.TimedScript([
 			{
 				time: 1,

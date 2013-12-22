@@ -12,11 +12,7 @@ Blind.scene_intro_corner = (function(){
 		Blind.camera.init(map);
 		Blind.camera.enableViewKeys();
 		Blind.camera.enableMoveKeys();
-		Blind.camera.enableProjKeys();
-
-		Blind.camera.setPosition(347.46444556800026, 64.52036424518725);
-		Blind.camera.setAngle(-4.707877653327046);
-		Blind.camera.updateProjection();
+		Blind.camera.disableProjKeys();
 
 		script = new Blind.TimedScript([
 			{
