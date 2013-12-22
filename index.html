@@ -23,9 +23,20 @@ canvas#c {
 	width: 720px;
 	height: 405px;
 }
+iframe#song-loop {
+	/* Code taken from PuzzleScript:
+	(https://github.com/increpare/PuzzleScript/blob/master/js/engine.js#L650) */
+	visibility: hidden;
+	width: 500px;
+	height: 500px;
+	position: absolute;
+	top: -1000px;
+	left: -1000px;
+}
 </style>
 </head>
 <body>
+<iframe id="song-loop" src="https://youtube.googleapis.com/v/cRzZ0AdFHBs?autoplay=1&loop=1&playlist=cRzZ0AdFHBs"></iframe>
 <div id='container'>
 	<canvas id='c'></canvas>
 </div>
