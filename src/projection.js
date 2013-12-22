@@ -5,20 +5,24 @@ Blind.Segment = function(dict) {
 	this.y0 = dict.y0;
 	this.x1 = dict.x1;
 	this.y1 = dict.y1;
-	this.distSq0 = this.x0*this.x0 + this.y0*this.y0;
-	this.distSq1 = this.x1*this.x1 + this.y1*this.y1;
-	this.angle0 = Math.atan2(this.y0, this.x0);
-	this.angle1 = Math.atan2(this.y1, this.x1);
 
-	// Tricky corner case:
-	// Force angles of vertical segment endpoints from traveling over the atan2
-	// portal at PI.
-	if (this.type == 'v' && this.y1 == 0 && this.x0 < 0) {
-		this.angle1 = -this.angle1;
-	}
+	this.recalc();
 };
 
 Blind.Segment.prototype = {
+	recalc: function() {
+		this.distSq0 = this.x0*this.x0 + this.y0*this.y0;
+		this.distSq1 = this.x1*this.x1 + this.y1*this.y1;
+		this.angle0 = Math.atan2(this.y0, this.x0);
+		this.angle1 = Math.atan2(this.y1, this.x1);
+
+		// Tricky corner case:
+		// Force angles of vertical segment endpoints from traveling over the atan2
+		// portal at PI.
+		if (this.type == 'v' && this.y1 == 0 && this.x0 < 0) {
+			this.angle1 = -this.angle1;
+		}
+	},
 	getDistAtAngle: function(angle) {
 		if (this.type == 'v') {
 			return this.x0 / Math.cos(angle);
@@ -45,22 +49,54 @@ Blind.getProjection = function(dict) {
 
 	function getSegments() {
 		var segments = [];
+		var vsegs = [];
 		function processVSeg(box,x,y0,y1) {
-			if (y1 <= 0 || y0 >= 0) {
-				segments.push(new Blind.Segment({
+			if (x<0 && y0 < 0 && y1 > 0) {
+				processVSeg(box, x,y0,0);
+				processVSeg(box, x,0,y1);
+			}
+			else {
+				var seg = new Blind.Segment({
 					box: box,
 					x0: x, y0: y0,
 					x1: x, y1: y1,
 					type: 'v',
-				}));
-			}
-			else {
-				processVSeg(box, x,y0,0);
-				processVSeg(box, x,0,y1);
+				});
+				segments.push(seg);
+				vsegs.push(seg);
 			}
 		}
+		function horizontalCut(y,x0,x1) {
+			var x_cuts = [];
+			var i,len=vsegs.length;
+			var s,s2;
+			for (i=0; i<len; i++) {
+				s = vsegs[i];
+				if (x0 < s.x0 && s.x0 < x1 &&
+					s.y0 < y && y < s.y1) {
+
+					// add new vseg to reflect bottom half
+					s2 = new Blind.Segment(s);
+					s2.y0 = y;
+					s2.recalc();
+
+					// update vseg to reflect top half only
+					s.y1 = y;
+					s.recalc();
+
+					segments.push(s2);
+					vsegs.push(s2);
+
+					// add new x_cut at x
+					x_cuts.push(s.x0);
+				}
+			}
+			x_cuts.sort();
+			return x_cuts;
+		}
 		function processHSeg(box,y,x0,x1) {
-			if (x1 <= 0 || x0 >= 0) {
+			var cuts = horizontalCut(y,x0,x1);
+			if (cuts.length == 0) {
 				segments.push(new Blind.Segment({
 					box: box,
 					x0: x0, y0: y,
@@ -69,11 +105,20 @@ Blind.getProjection = function(dict) {
 				}));
 			}
 			else {
-				processHSeg(box, y,x0,0);
-				processHSeg(box, y,0,x1);
+				cuts.unshift(x0);
+				cuts.push(x1);
+				var i,len=cuts.length;
+				for (i=0; i<len-1; i++) {
+					segments.push(new Blind.Segment({
+						box: box,
+						x0: cuts[i], y0: y,
+						x1: cuts[i+1], y1: y,
+						type: 'h',
+					}));
+				}
 			}
 		}
-		function processBox(box) {
+		function processBoxHSegs(box) {
 			if (box.hide) {
 				return;
 			}
@@ -82,17 +127,6 @@ Blind.getProjection = function(dict) {
 			var y = box.y-cy;
 			var w = box.w;
 			var h = box.h;
-
-
-			// left
-			if (x > 0) {
-				processVSeg(box, x, y, y+h);
-			}
-
-			// right
-			if (x+w < 0) {
-				processVSeg(box, x+w, y, y+h);
-			}
 
 			// top
 			if (y > 0) {
@@ -104,10 +138,33 @@ Blind.getProjection = function(dict) {
 				processHSeg(box, y+h, x, x+w);
 			}
 		}
+		function processBoxVSegs(box) {
+			if (box.hide) {
+				return;
+			}
+
+			var x = box.x-cx;
+			var y = box.y-cy;
+			var w = box.w;
+			var h = box.h;
+
+			// left
+			if (x > 0) {
+				processVSeg(box, x, y, y+h);
+			}
+
+			// right
+			if (x+w < 0) {
+				processVSeg(box, x+w, y, y+h);
+			}
+		}
 
 		var i,len=boxes.length;
 		for (i=0; i<len; i++) {
-			processBox(boxes[i]);
+			processBoxVSegs(boxes[i]);
+		}
+		for (i=0; i<len; i++) {
+			processBoxHSegs(boxes[i]);
 		}
 		return segments;
 	}
