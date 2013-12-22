@@ -27,3 +27,9 @@ Blind.Mapper.setMode = function(mode) {
 
 	Blind.setScene(Blind.Mapper['scene_'+mode]);
 }
+
+Blind.Mapper.createScreenshot = function() {
+	var btn = document.getElementById("screenshot-button");
+	btn.href = Blind.canvas.toDataURL();
+	btn.download = "Blind-Mapper-"+((new Date).toLocaleString())+".png";
+}
