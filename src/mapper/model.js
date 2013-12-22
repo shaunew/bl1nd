@@ -7,8 +7,11 @@ Blind.Mapper.model = (function(){
 
 	// INDEX SELECTION
 
+	var playerSelected;
+
 	var selectedIndex;
 	function selectIndex(i) {
+		playerSelected = false;
 		selectedIndex = i;
 		refreshNameDisplay();
 	}
@@ -123,6 +126,19 @@ Blind.Mapper.model = (function(){
 				return function(x,y) {
 					box.x = x - dx;
 					box.y = y - dy;
+				};
+			}
+		}
+
+		function getMovePlayerFunc(x,y) {
+			var dx = x - player.x;
+			var dy = y - player.y;
+			var distSq = dx*dx + dy*dy;
+			var radius = 10;
+			if (distSq <= radius*radius) {
+				return function(x,y) {
+					player.x = x - dx;
+					player.y = y - dy;
 				};
 			}
 		}
