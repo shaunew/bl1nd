@@ -17,6 +17,10 @@ div#container {
 canvas#c {
 	display: block;
 }
+canvas.color-box {
+	width: 12px;
+	height: 12px;
+}
 </style>
 </head>
 <body>
@@ -80,9 +84,19 @@ canvas#c {
 	</div>
 	<div class="btn-group">
 		<button
-			onclick="Blind.Mapper.model.colorBox()"
-			class="btn"
-			>Color</button>
+			class="btn dropdown-toggle" data-toggle="dropdown">
+			Color <span class="caret"></span>
+			</button>
+
+		<ul class="dropdown-menu">
+			<li> <a onclick="Blind.Mapper.model.colorBox()" href="#" >Custom</a> </li>
+			<li> <a onclick="Blind.Mapper.model.setColor('#cc0000')" href="#" ><canvas class="color-box" style="background-color:#cc0000"></canvas> Red</a> </li>
+			<li> <a onclick="Blind.Mapper.model.setColor('#f57900')" href="#" ><canvas class="color-box" style="background-color:#f57900"></canvas> Orange</a> </li>
+			<li> <a onclick="Blind.Mapper.model.setColor('#edd400')" href="#" ><canvas class="color-box" style="background-color:#edd400"></canvas> Yellow</a> </li>
+			<li> <a onclick="Blind.Mapper.model.setColor('#73d216')" href="#" ><canvas class="color-box" style="background-color:#73d216"></canvas> Green</a> </li>
+			<li> <a onclick="Blind.Mapper.model.setColor('#3465a4')" href="#" ><canvas class="color-box" style="background-color:#3465a4"></canvas> Blue</a> </li>
+			<li> <a onclick="Blind.Mapper.model.setColor('#75507b')" href="#" ><canvas class="color-box" style="background-color:#75507b"></canvas> Purple</a> </li>
+		</ul>
 	</div>
 	<div class="btn-group">
 		<button

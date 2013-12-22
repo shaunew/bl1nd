@@ -104,6 +104,14 @@ Blind.Mapper.model = (function(){
 		}
 	}
 
+	function setColor(color) {
+		if (selectedIndex != null && color) {
+			var box = boxes[selectedIndex];
+			box.color = color;
+			Blind.Mapper.loader.backup();
+		}
+	}
+
 	function colorBox() {
 		if (selectedIndex != null) {
 			var box = boxes[selectedIndex];
@@ -338,6 +346,7 @@ Blind.Mapper.model = (function(){
 		duplicateBox: duplicateBox,
 		renameBox: renameBox,
 		colorBox: colorBox,
+		setColor: setColor,
 		setMapState: setMapState,
 		getMapState: getMapState,
 		getMap: getMap,
