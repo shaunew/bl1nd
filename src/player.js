@@ -1,4 +1,0 @@
-
-Blind.Player = function() {
-	
-};
