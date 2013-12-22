@@ -20,10 +20,10 @@ window.addEventListener('load', function() {
 // MODE SWITCHING
 
 Blind.Mapper.setMode = function(mode) {
-	$('edit-btn').removeClass('active');
-	$('play-btn').removeClass('active');
+	$('#edit-btn').removeClass('active');
+	$('#play-btn').removeClass('active');
 
-	$(mode+'-btn').addClass('active');
+	$('#'+mode+'-btn').addClass('active');
 
 	Blind.setScene(Blind.Mapper['scene_'+mode]);
 }

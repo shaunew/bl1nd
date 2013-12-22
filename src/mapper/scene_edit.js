@@ -1,12 +1,22 @@
 
 Blind.Mapper.scene_edit = (function(){
+
+	var keyHandler = {
+		'press': {
+			'space': function() {
+				Blind.Mapper.setMode('play');
+			},
+		},
+	};
 	
 	function init() {
 		Blind.Mapper.model.init();
+		Blind.input.addKeyHandler(keyHandler);
 	}
 
 	function cleanup() {
 		Blind.Mapper.model.cleanup();
+		Blind.input.removeKeyHandler(keyHandler);
 	}
 
 	function update(dt) {
