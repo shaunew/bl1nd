@@ -33,6 +33,15 @@ Blind.getProjection = function(dict) {
 	var cx = dict.x;
 	var cy = dict.y;
 	var boxes = dict.boxes;
+	if (!boxes || boxes.length == 0) {
+		return {
+			segments: [],
+			refpoints: [],
+			visibleSegments: [],
+			arcs: [],
+			cones: [],
+		};
+	}
 
 	function getSegments() {
 		var segments = [];
