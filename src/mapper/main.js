@@ -12,9 +12,18 @@ window.addEventListener('load', function() {
 
 	Blind.assets.load(function(){
 		Blind.input.init();
-		Blind.setScene(Blind.Mapper.scene);
-		Blind.executive.start();
 		Blind.Mapper.loader.restore();
+		Blind.executive.start();
 	});
 });
 
+// MODE SWITCHING
+
+Blind.Mapper.setMode = function(mode) {
+	$('edit-btn').removeClass('active');
+	$('play-btn').removeClass('active');
+
+	$(mode+'-btn').addClass('active');
+
+	Blind.setScene(Blind.Mapper['scene_'+mode]);
+}

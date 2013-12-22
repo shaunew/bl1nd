@@ -17,9 +17,11 @@ Blind.Mapper.model = (function(){
 
 	function refreshNameDisplay() {
 		var name = "";
-		var box = boxes[selectedIndex];
-		if (box && box.name) {
-			name = box.name;
+		if (boxes) {
+			var box = boxes[selectedIndex];
+			if (box && box.name) {
+				name = box.name;
+			}
 		}
 		$('#objectName').html(name);
 	}

@@ -1,9 +1,7 @@
 Blind.Mapper.scene_play = (function(){
 
 	function init() {
-		map = new Blind.Map(Blind.Mapper.loader.getState());
-
-		Blind.camera.init(map);
+		Blind.camera.init(Blind.Mapper.model.getMap());
 		Blind.camera.enableViewKeys();
 		Blind.camera.enableMoveKeys();
 		Blind.camera.enableProjKeys();

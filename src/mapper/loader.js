@@ -5,34 +5,19 @@ Blind.Mapper.loader = (function(){
 		bootbox.confirm('Are you sure you want to discard this map and start a new one?',
 			function(result) {
 				if (result) {
-					reset();
+					setState(null);
 				}
 			}
 		);
 	}
 
-	function reset() {
-		Blind.Mapper.model.setMapState(null);
-	}
-
 	function getState() {
-		return {
-			version: 2,
-			map: Blind.Mapper.getMapState(),
-		};
+		return Blind.Mapper.model.getMapState();
 	}
 
 	function setState(state) {
-		if (!state.version) {
-			// backwards compatibility
-			var state2 = {
-				boxes: state.boxes,
-			};
-			Blind.Mapper.model.setMapState(state2);
-		}
-		else {
-			Blind.Mapper.model.setMapState(state.map);
-		}
+		Blind.Mapper.setMode('edit');
+		Blind.Mapper.model.setMapState(state);
 		backup();
 	}
 
@@ -67,7 +52,6 @@ Blind.Mapper.loader = (function(){
 		reader.onload = function(e) {
 			try {
 				var state = JSON.parse(e.target.result);
-				console.log(state);
 				setState(state);
 			}
 			catch (e) {
@@ -99,7 +83,6 @@ Blind.Mapper.loader = (function(){
 		backup: backup,
 		restore: restore,
 		handleOpenFile: handleOpenFile,
-		reset: reset,
 		promptReset: promptReset,
 	};
 })();

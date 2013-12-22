@@ -138,6 +138,8 @@ Blind.camera = (function(){
 
 	function init(_map) {
 		map = _map;
+		setPosition(map.player.x, map.player.y);
+		setAngle(map.player.angle);
 		collideFlash.init();
 		collideAction.reset();
 		updateProjection();
