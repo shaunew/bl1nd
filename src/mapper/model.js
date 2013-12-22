@@ -65,7 +65,7 @@ Blind.Mapper.model = (function(){
 	// INTERFACE FUNCTIONS
 
 	function addBox() {
-		boxes.push(new Blind.Box({x:0, y:0, w:50, h:50, color:"#00F"}));
+		boxes.push(new Blind.Box({x:0, y:0, w:50, h:50, color:"#AAA"}));
 		selectIndex(boxes.length-1);
 		Blind.Mapper.loader.backup();
 	}
