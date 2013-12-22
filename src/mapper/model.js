@@ -1,6 +1,7 @@
 Blind.Mapper.model = (function(){
 
 	var map;
+	var projection;
 
 	// references to map player and boxes properties
 	var player, boxes;
@@ -8,6 +9,11 @@ Blind.Mapper.model = (function(){
 	// INDEX SELECTION
 
 	var playerSelected;
+	function selectPlayer() {
+		playerSelected = true;
+		selectedIndex = null;
+		refreshNameDisplay();
+	}
 
 	var selectedIndex;
 	function selectIndex(i) {
@@ -31,11 +37,20 @@ Blind.Mapper.model = (function(){
 
 	// STATE SET & GET
 
+	function updateProjection() {
+		projection = Blind.getProjection({
+			x: player.x,
+			y: player.y,
+			boxes: boxes,
+		});
+	}
+
 	function setMapState(state) {
 		selectIndex(null);
 		map = new Blind.Map(state);
 		player = map.player;
 		boxes = map.boxes;
+		updateProjection();
 	}
 
 	function getMapState() {
@@ -139,6 +154,7 @@ Blind.Mapper.model = (function(){
 				return function(x,y) {
 					player.x = x - dx;
 					player.y = y - dy;
+					updateProjection();
 				};
 			}
 		}
@@ -150,8 +166,12 @@ Blind.Mapper.model = (function(){
 				var i,len=boxes.length;
 				var f,box;
 
-				// if an object is already selected
-				if (selectedIndex != null) {
+				moveFunc = getMovePlayerFunc(x,y);
+				if (moveFunc) {
+					selectPlayer();
+				}
+				else if (selectedIndex != null) {
+					// if an object is already selected
 					box = boxes[selectedIndex];
 					moveFunc = getResizeFunc(box,x,y) || getMoveFunc(box,x,y);
 				}
@@ -209,6 +229,9 @@ Blind.Mapper.model = (function(){
 	function draw(ctx) {
 		var i,len = boxes.length;
 		var b;
+		if (playerSelected) {
+			ctx.globalAlpha = 0.6;
+		}
 		for (i=0; i<len; i++) {
 			b = boxes[i];
 			if (i == selectedIndex) {
@@ -217,6 +240,29 @@ Blind.Mapper.model = (function(){
 				ctx.strokeRect(b.x, b.y, b.w, b.h);
 			}
 			b.draw(ctx);
+		}
+		ctx.globalAlpha = 1;
+
+		ctx.beginPath();
+		ctx.arc(player.x, player.y, 3, 0, 2*Math.PI);
+		ctx.fillStyle = "#FFF";
+		ctx.fill();
+
+		if (playerSelected) {
+			Blind.drawArcs(ctx, {
+				x: player.x,
+				y: player.y,
+				radius: 30,
+				lineWidth: 9,
+				projection: projection,
+			});
+			ctx.globalAlpha = 0.2;
+			Blind.drawCones(ctx, {
+				x: player.x,
+				y: player.y,
+				projection: projection,
+			});
+			ctx.globalAlpha = 1;
 		}
 	}
 
