@@ -49,34 +49,35 @@ Blind.camera = (function(){
 	})();
 
 	var push = (function(){
-		var value=0, target=0;
-		var offset = 10;
+		var x,y;
+		var tx, ty;
+		var offset = 5;
 		var factor = 0.2;
 
-		function pushUp() {
-			target = -offset;
-		}
-		function pushDown() {
-			target = offset;
-		}
 		function reset() {
-			target = 0;
+			tx = x = 0;
+			ty = y = 0;
+		}
+
+		function setDir(_tx, _ty) {
+			tx = _tx;
+			ty = _ty;
 		}
 
 		function update(dt) {
-			value += (target-value)*factor;
+			x += (tx-x)*factor;
+			y += (ty-y)*factor;
 		}
 
-		function getValue() {
-			return value;
+		function get() {
+			return {x:x*offset, y:y*offset};
 		}
 
 		return {
-			pushUp: pushUp,
 			reset: reset,
-			pushDown: pushDown,
+			setDir: setDir,
 			update: update,
-			getValue: getValue,
+			get: get,
 		};
 	})();
 
@@ -140,6 +141,7 @@ Blind.camera = (function(){
 		map = _map;
 		setPosition(map.player.x, map.player.y);
 		setAngle(map.player.angle);
+		push.reset();
 		collideFlash.init();
 		collideAction.reset();
 		updateProjection();
@@ -191,23 +193,31 @@ Blind.camera = (function(){
 	};
 	var moveKeyHandler = {
 		'press': {
-			'up': function() {
+			'w': function() {
 				controls["moveUp"] = true;
-				push.pushUp();
 			},
-			'down': function() {
+			's': function() {
 				controls["moveDown"] = true;
-				push.pushDown();
+			},
+			'a': function() {
+				controls["moveLeft"] = true;
+			},
+			'd': function() {
+				controls["moveRight"] = true;
 			},
 		},
 		'release': {
-			'up': function() {
+			'w': function() {
 				controls["moveUp"] = false;
-				push.reset();
 			},
-			'down': function() {
+			's': function() {
 				controls["moveDown"] = false;
-				push.reset();
+			},
+			'a': function() {
+				controls["moveLeft"] = false;
+			},
+			'd': function() {
+				controls["moveRight"] = false;
 			},
 		}
 	};
@@ -374,17 +384,39 @@ Blind.camera = (function(){
 		if (controls["turnRight"]) {
 			angle += angleSpeed*dt;
 		}
+		var dx=0,dy=0;
+		var mx = Math.cos(angle);
+		var my = Math.sin(angle);
 		if (controls["moveUp"]) {
-			x = collideX(Math.cos(angle)*moveSpeed*dt);
-			y = collideY(Math.sin(angle)*moveSpeed*dt);
+			dx += mx;
+			dy += my;
 		}
 		if (controls["moveDown"]) {
-			x = collideX(-Math.cos(angle)*moveSpeed*dt);
-			y = collideY(-Math.sin(angle)*moveSpeed*dt);
+			dx += -mx;
+			dy += -my;
 		}
-		if (controls["moveUp"] || controls["moveDown"]) {
+		if (controls["moveLeft"]) {
+			dx += my;
+			dy += -mx;
+		}
+		if (controls["moveRight"]) {
+			dx += -my;
+			dy += mx;
+		}
+		var dist = Math.sqrt(dx*dx + dy*dy);
+		if (dist > 0) {
+			dx /= dist;
+			dy /= dist;
+		}
+		x = collideX(dx*moveSpeed*dt);
+		y = collideY(dy*moveSpeed*dt);
+
+		if (dx != 0 || dy != 0) {
 			updateProjection();
 		}
+
+		push.setDir(dx,dy);
+		push.update(dt);
 
 		if (projFade < projFadeTarget) {
 			projFade = Math.min(projFadeTarget, projFade + projFadeSpeed*dt);
@@ -393,7 +425,6 @@ Blind.camera = (function(){
 			projFade = Math.max(projFadeTarget, projFade - projFadeSpeed*dt);
 		}
 
-		push.update(dt);
 		tilt.update(dt);
 		collideFlash.update(dt);
 	}
@@ -402,7 +433,10 @@ Blind.camera = (function(){
 		ctx.save();
 		ctx.translate(Blind.canvas.width/2, Blind.canvas.height/2);
 		ctx.rotate(-Math.PI/2-angle);
-		ctx.translate(-x, -y);
+		ctx.translate(-x,-y);
+
+		var p = push.get();
+		ctx.translate(p.x,p.y);
 
 		function draw1D() {
 			ctx.save();
@@ -412,33 +446,28 @@ Blind.camera = (function(){
 			ctx.restore();
 
 			Blind.drawArcs(ctx, {
-				x: x-push.getValue()*Math.cos(angle),
-				y: y-push.getValue()*Math.sin(angle),
+				x: x,
+				y: y,
 				radius: 100,
 				lineWidth: 30,
 				projection: projection,
 			});
 
-			ctx.save();
-			ctx.setTransform(1,0,0,1,0,0);
-			ctx.translate(Blind.canvas.width/2, Blind.canvas.height/2 + push.getValue());
-
 			var collideAlpha = collideFlash.getValue();
 			if (collideAlpha) {
 				ctx.fillStyle = "rgba(200,200,200," + collideAlpha +")";
 				ctx.beginPath();
-				ctx.arc(0,0,85,0,Math.PI*2);
+				ctx.arc(x,y,85,0,Math.PI*2);
 				ctx.fill();
 			}
 
-			ctx.rotate(tilt.getValue());
 			ctx.strokeStyle = "rgba(0,0,0,0.5)";
 			ctx.beginPath();
-			var a=Math.PI/2;
+			var arange = Math.PI/2;
+			var a=angle+tilt.getValue()+arange/2;
 			ctx.lineWidth = 31;
-			ctx.arc(0,0, 100, -Math.PI/2+a/2, Math.PI/2*3 - a/2);
+			ctx.arc(x,y, 100, a, a + (2*Math.PI - arange));
 			ctx.stroke();
-			ctx.restore();
 		}
 
 		function draw2D() {
