@@ -1,0 +1,201 @@
+{
+	"player": {
+		"x": 315,
+		"y": 172,
+		"angle": -1.55708773906513
+	},
+	"boxes": [
+		{
+			"x": 108,
+			"y": 34,
+			"w": 424,
+			"h": 24,
+			"color": "green",
+			"name": ""
+		},
+		{
+			"x": 165,
+			"y": -15,
+			"w": 23,
+			"h": 384,
+			"color": "green",
+			"name": ""
+		},
+		{
+			"x": 449,
+			"y": -9,
+			"w": 23,
+			"h": 384,
+			"color": "green",
+			"name": ""
+		},
+		{
+			"x": 108,
+			"y": 314,
+			"w": 424,
+			"h": 24,
+			"color": "green",
+			"name": ""
+		},
+		{
+			"x": 262,
+			"y": 263,
+			"w": 103,
+			"h": 22,
+			"color": "red",
+			"name": ""
+		},
+		{
+			"x": 192,
+			"y": 153,
+			"w": 21,
+			"h": 28,
+			"color": "blue",
+			"name": "light1"
+		},
+		{
+			"x": 418,
+			"y": 173,
+			"w": 21,
+			"h": 28,
+			"color": "blue",
+			"name": "light1"
+		},
+		{
+			"x": 201,
+			"y": 65,
+			"w": 21,
+			"h": 28,
+			"color": "blue",
+			"name": "light3"
+		},
+		{
+			"x": 305,
+			"y": 64,
+			"w": 21,
+			"h": 28,
+			"color": "blue",
+			"name": "light1"
+		},
+		{
+			"x": 413,
+			"y": 68,
+			"w": 20,
+			"h": 24,
+			"color": "blue",
+			"name": "light3"
+		},
+		{
+			"x": 191,
+			"y": 262,
+			"w": 18,
+			"h": 20,
+			"color": "yellow",
+			"name": "light2"
+		},
+		{
+			"x": 194,
+			"y": 201,
+			"w": 18,
+			"h": 20,
+			"color": "yellow",
+			"name": "light2"
+		},
+		{
+			"x": 191,
+			"y": 113,
+			"w": 18,
+			"h": 20,
+			"color": "yellow",
+			"name": "light2"
+		},
+		{
+			"x": 242,
+			"y": 64,
+			"w": 18,
+			"h": 20,
+			"color": "yellow",
+			"name": "light2"
+		},
+		{
+			"x": 277,
+			"y": 68,
+			"w": 18,
+			"h": 20,
+			"color": "yellow",
+			"name": "light2"
+		},
+		{
+			"x": 341,
+			"y": 64,
+			"w": 18,
+			"h": 20,
+			"color": "yellow",
+			"name": "light2"
+		},
+		{
+			"x": 377,
+			"y": 66,
+			"w": 18,
+			"h": 20,
+			"color": "yellow",
+			"name": "light2"
+		},
+		{
+			"x": 424,
+			"y": 104,
+			"w": 18,
+			"h": 20,
+			"color": "yellow",
+			"name": "light2"
+		},
+		{
+			"x": 425,
+			"y": 141,
+			"w": 18,
+			"h": 20,
+			"color": "yellow",
+			"name": "light2"
+		},
+		{
+			"x": 426,
+			"y": 222,
+			"w": 18,
+			"h": 20,
+			"color": "yellow",
+			"name": "light2"
+		},
+		{
+			"x": 409,
+			"y": 291,
+			"w": 18,
+			"h": 20,
+			"color": "yellow",
+			"name": "light2"
+		},
+		{
+			"x": 302,
+			"y": 291,
+			"w": 20,
+			"h": 18,
+			"color": "orange",
+			"name": "me"
+		},
+		{
+			"x": 193,
+			"y": 232,
+			"w": 15,
+			"h": 19,
+			"color": "blue",
+			"name": "light3"
+		},
+		{
+			"x": 418,
+			"y": 253,
+			"w": 15,
+			"h": 19,
+			"color": "blue",
+			"name": "light3"
+		}
+	]
+}

@@ -36,6 +36,16 @@ Blind.assets = (function(){
 		"msg_hall02": "img/msg-hall02.png",
 		"msg_corner00": "img/msg-corner00.png",
 		"msg_corner01": "img/msg-corner01.png",
+		"xmas_back": "img/xmas_back.png",
+		"xmas_next": "img/xmas_next.png",
+		"xmas00": "img/xmas00.png",
+		"xmas01": "img/xmas01.png",
+		"xmas02": "img/xmas02.png",
+		"xmas03": "img/xmas03.png",
+		"xmas04": "img/xmas04.png",
+		"xmas05": "img/xmas05.png",
+		"xmas06": "img/xmas06.png",
+		"xmas07": "img/xmas07.png",
 	};
 
 	var jsonSources = {
@@ -44,6 +54,7 @@ Blind.assets = (function(){
 		"map_intro_wall": "maps/intro-wall.json",
 		"map_intro_hall": "maps/intro-hall.json",
 		"map_intro_corner": "maps/intro-corner.json",
+		"map_wreath": "maps/wreath.json",
 	};
 
 	var json = {};
