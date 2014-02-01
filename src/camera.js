@@ -164,6 +164,7 @@ Blind.camera = (function(){
         var aimRay;
         var flying;
         var flyAngle;
+        var landingPoint;
 
         function reset() {
             aiming = false;
@@ -193,6 +194,10 @@ Blind.camera = (function(){
             if (aimRay) {
                 flyAngle = angle;
                 flying = true;
+                landingPoint = {
+                    x: x + Math.cos(angle) * aimRay.dist,
+                    y: y + Math.sin(angle) * aimRay.dist,
+                };
                 collideAction.add("any", stopShooting);
             }
             cancelAiming();
@@ -215,6 +220,7 @@ Blind.camera = (function(){
             isAiming: function() { return aiming; },
             isFlying: function() { return flying; },
             getFlyAngle: function() { return flyAngle; },
+            getLandingPoint: function() { return landingPoint; },
         };
     })();
 
@@ -565,11 +571,21 @@ Blind.camera = (function(){
                 })();
             }
 
+            if (hook.isFlying()) {
+                var a = hook.getFlyAngle();
+                var da = Math.random()*Math.PI/64;
+                ctx.beginPath();
+                ctx.arc(x,y,radius,a-da,a+da);
+                ctx.lineWidth = lineWidth;
+                ctx.strokeStyle = "#FFF";
+                ctx.stroke();
+            }
+
 			var collideAlpha = collideFlash.getValue();
 			if (collideAlpha) {
 				ctx.fillStyle = "rgba(200,200,200," + collideAlpha +")";
 				ctx.beginPath();
-				ctx.arc(x,y,85,0,Math.PI*2);
+				ctx.arc(x,y,radius-lineWidth/2,0,Math.PI*2);
 				ctx.fill();
 			}
 
@@ -577,8 +593,8 @@ Blind.camera = (function(){
 			ctx.beginPath();
 			var arange = Math.PI/2;
 			var a=angle+tilt.getValue()+arange/2;
-			ctx.lineWidth = 31;
-			ctx.arc(x,y, 100, a, a + (2*Math.PI - arange));
+			ctx.lineWidth = lineWidth+1;
+			ctx.arc(x,y, radius, a, a + (2*Math.PI - arange));
 			ctx.stroke();
 		}
 
@@ -599,6 +615,16 @@ Blind.camera = (function(){
 			ctx.arc(x,y,3,0,Math.PI*2);
 			ctx.fillStyle = "#FFF";
 			ctx.fill();
+
+            if (hook.isFlying()) {
+                ctx.strokeStyle = "#FFF";
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(x,y);
+                var p = hook.getLandingPoint();
+                ctx.lineTo(p.x, p.y);
+                ctx.stroke();
+            }
 		}
 
 		if (projFade == 0) {
