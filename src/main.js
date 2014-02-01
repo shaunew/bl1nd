@@ -6,7 +6,7 @@ Blind.start = function(scene_name) {
 
 		var w = Blind.canvas.width = 720;
 		var h = Blind.canvas.height = w/16*9;
-		Blind.input.setBorderSize(20);
+		//Blind.input.setBorderSize(20);
 
 		Blind.assets.load(function(){
 			Blind.input.init();
