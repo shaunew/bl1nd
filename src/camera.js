@@ -155,6 +155,75 @@ Blind.camera = (function(){
 		});
 	}
 
+    // ========================== HOOK FUNCTIONS ===============================
+
+    var hook = (function(){
+
+        var aiming;
+        var aimRay;
+        var driver;
+
+        function reset() {
+            aiming = false;
+            aimRay = null;
+            driver = null;
+        }
+
+        function refreshAimRay() {
+            aimRay = projection.castRayAtAngle(angle);
+        }
+
+        function startAiming() {
+            aiming = true;
+            refreshAimRay();
+        }
+
+        function cancelAiming() {
+            aiming = false;
+            aimRay = null;
+        }
+
+        function shoot() {
+            if (aimRay) {
+                var x1 = x + Math.cos(angle) * aimRay.dist;
+                var y1 = y + Math.sin(angle) * aimRay.dist;
+                driver = new Blind.InterpDriver(
+                    Blind.makeInterpForObjs('linear',
+                        [ {x: x, y: y}, {x: x1, y: y1} ],
+                        ['x', 'y'], [0, 1]),
+                    {
+                        freezeAtEnd: true,
+                    });
+            }
+            cancelAiming();
+        }
+
+        function update(dt) {
+            if (aiming) {
+                refreshAimRay();
+            }
+            if (driver) {
+                 driver.step(dt);
+                 x = driver.val.x;
+                 y = driver.val.y;
+                 if (driver.isAtEnd()) {
+                     driver = null;
+                 }
+            }
+        }
+
+        return {
+            reset: reset,
+            startAiming: startAiming,
+            cancelAiming: cancelAiming,
+            shoot: shoot,
+            update: update,
+            getAimRay: function() { return aimRay; },
+            isAiming: function() { return aiming; },
+            isFlying: function() { return driver; },
+        };
+    })();
+
 	// ========================== CONTROLLER FUNCTIONS =============================
 	
 	var controls = {
@@ -233,6 +302,18 @@ Blind.camera = (function(){
 			},
 		},
 	};
+    var hookKeyHandler = {
+        'press': {
+            'space': function() {
+                hook.startAiming();
+            },
+        },
+        'release': {
+            'space': function() {
+                hook.shoot();
+            },
+        },
+    };
 	function enableViewKeys()  { Blind.input.addKeyHandler(    viewKeyHandler); }
 	function disableViewKeys() { Blind.input.removeKeyHandler( viewKeyHandler); }
 	function enableMoveKeys()  { Blind.input.addKeyHandler(    moveKeyHandler); }
@@ -242,6 +323,13 @@ Blind.camera = (function(){
 		Blind.input.removeKeyHandler( projKeyHandler);
 		fadeTo1D();
 	}
+    function enableHookKeys() {
+        Blind.input.addKeyHandler(hookKeyHandler);
+    }
+    function disableHookKeys() {
+        Blind.input.removeKeyHandler(hookKeyHandler);
+        hook.cancel();
+    }
 
 	// ========================== COLLISION FUNCTIONS  =============================
 
@@ -384,39 +472,46 @@ Blind.camera = (function(){
 		if (controls["turnRight"]) {
 			angle += angleSpeed*dt;
 		}
-		var dx=0,dy=0;
-		var mx = Math.cos(angle);
-		var my = Math.sin(angle);
-		if (controls["moveUp"]) {
-			dx += mx;
-			dy += my;
-		}
-		if (controls["moveDown"]) {
-			dx += -mx;
-			dy += -my;
-		}
-		if (controls["moveLeft"]) {
-			dx += my;
-			dy += -mx;
-		}
-		if (controls["moveRight"]) {
-			dx += -my;
-			dy += mx;
-		}
-		var dist = Math.sqrt(dx*dx + dy*dy);
-		if (dist > 0) {
-			dx /= dist;
-			dy /= dist;
-		}
-		x = collideX(dx*moveSpeed*dt);
-		y = collideY(dy*moveSpeed*dt);
 
-		if (dx != 0 || dy != 0) {
-			updateProjection();
-		}
+        hook.update(dt);
 
-		push.setDir(dx,dy);
-		push.update(dt);
+        if (hook.isFlying()) {
+            updateProjection();
+            push.reset(); // TODO: some flying animation here
+        }
+        else {
+            var dx=0,dy=0;
+            var mx = Math.cos(angle);
+            var my = Math.sin(angle);
+            if (controls["moveUp"]) {
+                dx += mx;
+                dy += my;
+            }
+            if (controls["moveDown"]) {
+                dx += -mx;
+                dy += -my;
+            }
+            if (controls["moveLeft"]) {
+                dx += my;
+                dy += -mx;
+            }
+            if (controls["moveRight"]) {
+                dx += -my;
+                dy += mx;
+            }
+            var dist = Math.sqrt(dx*dx + dy*dy);
+            if (dist > 0) {
+                dx /= dist;
+                dy /= dist;
+            }
+            x = collideX(dx*moveSpeed*dt);
+            y = collideY(dy*moveSpeed*dt);
+            if (dx != 0 || dy != 0) {
+                updateProjection();
+            }
+            push.setDir(dx,dy);
+        }
+        push.update(dt);
 
 		if (projFade < projFadeTarget) {
 			projFade = Math.min(projFadeTarget, projFade + projFadeSpeed*dt);
@@ -445,13 +540,31 @@ Blind.camera = (function(){
 			ctx.drawImage(img,Blind.canvas.width/2 - img.width/2, Blind.canvas.height/2 - img.height/2);
 			ctx.restore();
 
+            var radius = 100;
+            var lineWidth = 30;
+
 			Blind.drawArcs(ctx, {
 				x: x,
 				y: y,
-				radius: 100,
-				lineWidth: 30,
+				radius: radius,
+				lineWidth: lineWidth,
 				projection: projection,
 			});
+
+            var ray = hook.getAimRay();
+            if (ray) {
+                (function(){
+                    var r = radius + lineWidth;
+                    var r2 = r + lineWidth/2;
+                    var da = Math.PI/16;
+                    ctx.beginPath();
+                    ctx.moveTo(x+r2*Math.cos(angle), y+r2*Math.sin(angle));
+                    ctx.arc(x,y,r, angle-da, angle+da);
+                    ctx.closePath();
+                    ctx.fillStyle = ray.color;
+                    ctx.fill();
+                })();
+            }
 
 			var collideAlpha = collideFlash.getValue();
 			if (collideAlpha) {
@@ -515,6 +628,8 @@ Blind.camera = (function(){
 		disableMoveKeys: disableMoveKeys,
 		enableProjKeys: enableProjKeys,
 		disableProjKeys: disableProjKeys,
+		enableHookKeys: enableHookKeys,
+		disableHookKeys: disableHookKeys,
 		setPosition: setPosition,
 		setAngle: setAngle,
 		update: update,

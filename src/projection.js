@@ -420,6 +420,31 @@ Blind.getProjection = function(dict) {
 	}
 
 	var cones = getCones();
+
+    function normalizeAngle(a) {
+        return Math.atan2(Math.sin(a), Math.cos(a));
+    }
+
+    function castRayAtAngle(angle) {
+        angle = normalizeAngle(angle);
+        var i,len=visibleSegments.length;
+        if (len == 0) {
+            return null;
+        }
+        var visSeg, seg;
+        for (i=0; i<len; i++) {
+            visSeg = visibleSegments[i];
+            seg = visSeg.seg;
+            if (visSeg.a0 <= angle && angle <= visSeg.a1) {
+                return {
+                    seg: seg,
+                    dist: seg.getDistAtAngle(angle),
+                    color: seg.color,
+                };
+            }
+        }
+        return null;
+    }
 	
 	return {
 		segments: segments,
@@ -428,6 +453,7 @@ Blind.getProjection = function(dict) {
 		corners: corners,
 		arcs: arcs,
 		cones: cones,
+        castRayAtAngle: castRayAtAngle,
 	};
 };
 

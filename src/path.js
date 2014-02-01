@@ -44,6 +44,10 @@ Blind.InterpDriver.prototype = {
 		this.step(0);
 	},
 
+    isAtEnd: function() {
+        return this.time >= this.totalTime;
+    },
+
 	isDone: function isDone() {
 		return !this.loop && !this.freezeAtEnd && this.time > this.totalTime; 
 	},
