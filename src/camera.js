@@ -162,6 +162,7 @@ Blind.camera = (function(){
         var aiming;
         var aimRay;
         var driver;
+        var speed = moveSpeed*10;
 
         function reset() {
             aiming = false;
@@ -187,10 +188,11 @@ Blind.camera = (function(){
             if (aimRay) {
                 var x1 = x + Math.cos(angle) * aimRay.dist;
                 var y1 = y + Math.sin(angle) * aimRay.dist;
+                var t = aimRay.dist / speed;
                 driver = new Blind.InterpDriver(
                     Blind.makeInterpForObjs('linear',
                         [ {x: x, y: y}, {x: x1, y: y1} ],
-                        ['x', 'y'], [0, 1]),
+                        ['x', 'y'], [0, t]),
                     {
                         freezeAtEnd: true,
                     });
@@ -328,7 +330,7 @@ Blind.camera = (function(){
     }
     function disableHookKeys() {
         Blind.input.removeKeyHandler(hookKeyHandler);
-        hook.cancel();
+        hook.reset();
     }
 
 	// ========================== COLLISION FUNCTIONS  =============================
