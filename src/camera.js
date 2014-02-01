@@ -553,7 +553,7 @@ Blind.camera = (function(){
             var ray = hook.getAimRay();
             if (ray) {
                 (function(){
-                    var r = radius + lineWidth;
+                    var r = radius + lineWidth/2+ 2;
                     var r2 = r + lineWidth/2;
                     var da = Math.PI/16;
                     ctx.beginPath();
