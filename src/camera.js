@@ -14,6 +14,7 @@ Blind.camera = (function(){
 
 	// speed (per second)
 	var moveSpeed = 50;
+    var flySpeed = moveSpeed * 10;
 	var angleSpeed = Math.PI;
 
 	var collideFlash = (function(){
@@ -161,13 +162,13 @@ Blind.camera = (function(){
 
         var aiming;
         var aimRay;
-        var driver;
-        var speed = moveSpeed*10;
+        var flying;
+        var flyAngle;
 
         function reset() {
             aiming = false;
+            flying = false;
             aimRay = null;
-            driver = null;
         }
 
         function refreshAimRay() {
@@ -184,18 +185,15 @@ Blind.camera = (function(){
             aimRay = null;
         }
 
+        function stopShooting() {
+            flying = false;
+        }
+
         function shoot() {
             if (aimRay) {
-                var x1 = x + Math.cos(angle) * aimRay.dist;
-                var y1 = y + Math.sin(angle) * aimRay.dist;
-                var t = aimRay.dist / speed;
-                driver = new Blind.InterpDriver(
-                    Blind.makeInterpForObjs('linear',
-                        [ {x: x, y: y}, {x: x1, y: y1} ],
-                        ['x', 'y'], [0, t]),
-                    {
-                        freezeAtEnd: true,
-                    });
+                flyAngle = angle;
+                flying = true;
+                collideAction.add("any", stopShooting);
             }
             cancelAiming();
         }
@@ -204,14 +202,6 @@ Blind.camera = (function(){
             if (aiming) {
                 refreshAimRay();
             }
-            if (driver) {
-                 driver.step(dt);
-                 x = driver.val.x;
-                 y = driver.val.y;
-                 if (driver.isAtEnd()) {
-                     driver = null;
-                 }
-            }
         }
 
         return {
@@ -219,10 +209,12 @@ Blind.camera = (function(){
             startAiming: startAiming,
             cancelAiming: cancelAiming,
             shoot: shoot,
+            stopShooting: stopShooting,
             update: update,
             getAimRay: function() { return aimRay; },
             isAiming: function() { return aiming; },
-            isFlying: function() { return driver; },
+            isFlying: function() { return flying; },
+            getFlyAngle: function() { return flyAngle; },
         };
     })();
 
@@ -396,6 +388,7 @@ Blind.camera = (function(){
 	function onCollide(box) {
 		collideFlash.trigger();
 		collideAction.exec(box.name);
+        collideAction.exec("any");
 	}
 
 	var collidePad = 0.01;
@@ -477,12 +470,15 @@ Blind.camera = (function(){
 
         hook.update(dt);
 
+        var dx=0,dy=0;
+        var speed;
         if (hook.isFlying()) {
-            updateProjection();
-            push.reset(); // TODO: some flying animation here
+            var a = hook.getFlyAngle();
+            dx = Math.cos(a);
+            dy = Math.sin(a);
+            speed = flySpeed;
         }
         else {
-            var dx=0,dy=0;
             var mx = Math.cos(angle);
             var my = Math.sin(angle);
             if (controls["moveUp"]) {
@@ -506,13 +502,14 @@ Blind.camera = (function(){
                 dx /= dist;
                 dy /= dist;
             }
-            x = collideX(dx*moveSpeed*dt);
-            y = collideY(dy*moveSpeed*dt);
-            if (dx != 0 || dy != 0) {
-                updateProjection();
-            }
-            push.setDir(dx,dy);
+            speed = moveSpeed;
         }
+        x = collideX(dx*speed*dt);
+        y = collideY(dy*speed*dt);
+        if (dx != 0 || dy != 0) {
+            updateProjection();
+        }
+        push.setDir(dx,dy);
         push.update(dt);
 
 		if (projFade < projFadeTarget) {
