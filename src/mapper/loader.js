@@ -33,18 +33,13 @@ Blind.Mapper.loader = (function(){
 	}
 
 	function restore() {
+        var state = null;
 		try {
-			if (window.localStorage) {
-				var state = JSON.parse(window.localStorage.mapperState);
-				if (state) {
-					setState(state);
-					return true;
-				}
-			}
+            state = JSON.parse(window.localStorage.mapperState);
 		}
 		catch (e) {
 		}
-		return false;
+        setState(state);
 	}
 
 	function openFile(f) {
