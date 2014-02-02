@@ -35,6 +35,9 @@ Blind.camera = (function(){
 
 		function update(dt) {
 			alphaDriver.step(dt);
+            if (spider.isAttached()) {
+                alphaDriver.reset();
+            }
 		}
 
 		function getValue() {
@@ -48,6 +51,89 @@ Blind.camera = (function(){
 			getValue: getValue,
 		};
 	})();
+
+    var replay = (function(){
+        return {
+        };
+    })();
+
+    var spider = (function(){
+        
+        var grabbing;
+        var attached;
+        var box;
+        var side;
+
+        function reset() {
+            grabbing = false;
+            attached = false;
+            box = side = null;
+        }
+
+        function grab() {
+            grabbing = true;
+        }
+
+        function attach(_box,_side) {
+            attached = true;
+            box = _box;
+            side = _side;
+        }
+
+        function move(dx,dy) {
+
+            var minx = box.x-collidePad;
+            var maxx = box.x+box.w+collidePad;
+            var miny = box.y-collidePad;
+            var maxy = box.y+box.h+collidePad;
+
+            if (side == "+x" || side == "-x") {
+                if (y + dy <= miny) {
+                    y = miny;
+                    side = "-y";
+                    return true;
+                }
+                else if (y + dy >= maxy) {
+                    y = maxy;
+                    side = "+y";
+                    return true;
+                }
+            }
+            else if (side == "+y" || side == "-y") {
+                if (x + dx <= minx) {
+                    x = minx;
+                    side = "-x";
+                    return true;
+                }
+                else if (x + dx >= maxx) {
+                    x = maxx;
+                    side = "+x";
+                    return true;
+                }
+            }
+
+            // no collision
+            return false;
+        }
+
+        function release() {
+            reset();
+        }
+
+        function update(dt) {
+        }
+
+        return {
+            reset: reset,
+            grab: grab,
+            release: release,
+            attach: attach,
+            move: move,
+            isGrabbing: function() { return grabbing; },
+            isAttached: function() { return attached; },
+            getSide: function() { return side; },
+        };
+    })();
 
 	var push = (function(){
 		var x,y;
@@ -144,6 +230,7 @@ Blind.camera = (function(){
 		setPosition(map.player.x, map.player.y);
 		setAngle(map.player.angle);
 		push.reset();
+        spider.reset();
 		collideFlash.init();
 		collideAction.reset();
 		updateProjection();
@@ -291,6 +378,18 @@ Blind.camera = (function(){
 			},
 		}
 	};
+    var spiderKeyHandler = {
+        'press': {
+            'ctrl': function() {
+                spider.grab();
+            },
+        },
+        'release': {
+            'ctrl': function() {
+                spider.release();
+            },
+        },
+    };
 	var projKeyHandler = {
 		'press': {
 			'shift': function() {
@@ -350,6 +449,12 @@ Blind.camera = (function(){
     function disableMouseLook() {
         Blind.input.removeMouseHandler(mouseLookHandler);
         Blind.input.disableMouseLock();
+    }
+    function enableSpiderKeys() {
+        Blind.input.addKeyHandler(spiderKeyHandler);
+    }
+    function disableSpiderKeys() {
+        Blind.input.removeKeyHandler(spiderKeyHandler);
     }
 
 	// ========================== COLLISION FUNCTIONS  =============================
@@ -412,78 +517,98 @@ Blind.camera = (function(){
 	function addCollideAction(name, action) {
 		collideAction.add(name, action);
 	}
-	function onCollide(box) {
+	function onCollide(box,side) {
 		collideFlash.trigger();
 		collideAction.exec(box.name);
         collideAction.exec("any");
+
+        if (spider.isGrabbing()) {
+            spider.attach(box,side);
+        }
 	}
 
 	var collidePad = 0.01;
-	function collideX(dx) {
-		if (dx == 0) {
-			return x;
-		}
-		var boxes = map.boxes;
-		var i,len = boxes.length;
-		var b;
-		var boundX;
-		if (dx < 0) {
-			for (i=0; i<len; i++) {
-				b = boxes[i];
-				boundX = b.x+b.w;
-				if (b.y <= y && y <= b.y+b.h &&
-					boundX <= x && x+dx <= boundX) {
-					onCollide(b);
-					return boundX + collidePad;
-				}
-			}
-		}
-		else {
-			for (i=0; i<len; i++) {
-				b = boxes[i];
-				boundX = b.x;
-				if (b.y <= y && y <= b.y+b.h &&
-					x <= boundX && boundX <= x+dx) {
-					onCollide(b);
-					return boundX - collidePad;
-				}
-			}
-		}
-		return x+dx;
-	}
+    function move(dx,dy) {
 
-	function collideY(dy) {
-		if (dy == 0) {
-			return y;
-		}
-		var boxes = map.boxes;
-		var i,len = boxes.length;
-		var b;
-		var boundY;
-		if (dy < 0) {
-			for (i=0; i<len; i++) {
-				b = boxes[i];
-				boundY = b.y+b.h;
-				if (b.x <= x && x <= b.x+b.w &&
-					boundY <= y && y+dy <= boundY) {
-					onCollide(b);
-					return boundY + collidePad;
-				}
-			}
-		}
-		else {
-			for (i=0; i<len; i++) {
-				b = boxes[i];
-				boundY = b.y;
-				if (b.x <= x && x <= b.x+b.w &&
-					y <= boundY && boundY <= y+dy) {
-					onCollide(b);
-					return boundY - collidePad;
-				}
-			}
-		}
-		return y+dy;
-	}
+        // will need to fix this
+        // (currently assuming that there can be no collision with another
+        //  block before we reach the corner of the block.  only true for
+        //  small dx,dy)
+        if (spider.isAttached()) {
+            if (spider.move(dx,dy)) {
+                return;
+            }
+        }
+
+        function collideX(dx) {
+            if (dx == 0) {
+                return x;
+            }
+            var boxes = map.boxes;
+            var i,len = boxes.length;
+            var b;
+            var boundX;
+            if (dx < 0) {
+                for (i=0; i<len; i++) {
+                    b = boxes[i];
+                    boundX = b.x+b.w;
+                    if (b.y <= y && y <= b.y+b.h &&
+                        boundX <= x && x+dx <= boundX) {
+                        onCollide(b,"+x");
+                        return boundX + collidePad;
+                    }
+                }
+            }
+            else {
+                for (i=0; i<len; i++) {
+                    b = boxes[i];
+                    boundX = b.x;
+                    if (b.y <= y && y <= b.y+b.h &&
+                        x <= boundX && boundX <= x+dx) {
+                        onCollide(b,"-x");
+                        return boundX - collidePad;
+                    }
+                }
+            }
+            return x+dx;
+        }
+
+        function collideY(dy) {
+            if (dy == 0) {
+                return y;
+            }
+            var boxes = map.boxes;
+            var i,len = boxes.length;
+            var b;
+            var boundY;
+            if (dy < 0) {
+                for (i=0; i<len; i++) {
+                    b = boxes[i];
+                    boundY = b.y+b.h;
+                    if (b.x <= x && x <= b.x+b.w &&
+                        boundY <= y && y+dy <= boundY) {
+                        onCollide(b,"+y");
+                        return boundY + collidePad;
+                    }
+                }
+            }
+            else {
+                for (i=0; i<len; i++) {
+                    b = boxes[i];
+                    boundY = b.y;
+                    if (b.x <= x && x <= b.x+b.w &&
+                        y <= boundY && boundY <= y+dy) {
+                        onCollide(b,"-y");
+                        return boundY - collidePad;
+                    }
+                }
+            }
+            return y+dy;
+        }
+
+        x = collideX(dx);
+        y = collideY(dy);
+    }
 
 	// ========================== MAIN FUNCTIONS  =============================
 
@@ -505,6 +630,43 @@ Blind.camera = (function(){
             dy = Math.sin(a);
             speed = flySpeed;
             push.setDir(dx,dy,20);
+        }
+        else if (spider.isAttached()) {
+            var side = spider.getSide();
+            if (side == "+x") {
+                if (controls["moveLeft"]) {
+                    dy -= 1;
+                }
+                if (controls["moveRight"]) {
+                    dy += 1;
+                }
+            }
+            else if (side == "-x") {
+                if (controls["moveLeft"]) {
+                    dy += 1;
+                }
+                if (controls["moveRight"]) {
+                    dy -= 1;
+                }
+            }
+            else if (side == "+y") {
+                if (controls["moveLeft"]) {
+                    dx += 1;
+                }
+                if (controls["moveRight"]) {
+                    dx -= 1;
+                }
+            }
+            else if (side == "-y") {
+                if (controls["moveLeft"]) {
+                    dx -= 1;
+                }
+                if (controls["moveRight"]) {
+                    dx += 1;
+                }
+            }
+            speed = moveSpeed;
+            push.setDir(dx,dy,5);
         }
         else {
             var mx = Math.cos(angle);
@@ -533,8 +695,7 @@ Blind.camera = (function(){
             speed = moveSpeed;
             push.setDir(dx,dy,5);
         }
-        x = collideX(dx*speed*dt);
-        y = collideY(dy*speed*dt);
+        move(dx*speed*dt, dy*speed*dt);
         if (dx != 0 || dy != 0) {
             updateProjection();
         }
@@ -679,6 +840,8 @@ Blind.camera = (function(){
 		disableHookKeys: disableHookKeys,
         enableMouseLook: enableMouseLook,
         disableMouseLook: disableMouseLook,
+        enableSpiderKeys: enableSpiderKeys,
+        disableSpiderKeys: disableSpiderKeys,
 		setPosition: setPosition,
 		setAngle: setAngle,
 		update: update,
