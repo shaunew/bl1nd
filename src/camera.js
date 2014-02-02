@@ -457,10 +457,14 @@ Blind.camera = (function(){
     };
     var mouseLookHandler = {
         'start': function() {
-            hook.startAiming();
+            if (Blind.input.isMouseLock()) {
+                hook.startAiming();
+            }
         },
         'end': function() {
-            hook.shoot();
+            if (Blind.input.isMouseLock()) {
+                hook.shoot();
+            }
         },
         'lockmove': function(dx,dy) {
             var radiansPerPixels = 1/100;

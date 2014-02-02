@@ -106,8 +106,8 @@ Blind.input = (function(){
     var mouseLocked = false;
     var canMouseLock = false;
     function pointerlockchange() {
-        document.pointerLockElement = document.pointerLockElement || document.mozPointerLockElement || document.webkitPointerLockElement;
-        if (!!document.pointerLockElement) {
+        var pointerLockElement = document.pointerLockElement || document.mozPointerLockElement || document.webkitPointerLockElement;
+        if (pointerLockElement) {
             mouseLocked = true;
         }
         else {
@@ -136,6 +136,9 @@ Blind.input = (function(){
         exitMouseLock();
     }
     function mouseLockMove(e) {
+        if (!mouseLocked) {
+            return;
+        }
         var dx = e.movementX || e.mozMovementX || e.webkitMovementX || 0;
         var dy = e.movementY || e.mozMovementY || e.webkitMovementY || 0;
         mouseHelper('lockmove', dx, dy);
@@ -248,5 +251,6 @@ Blind.input = (function(){
 		setBorderSize: setBorderSize,
         enableMouseLock: enableMouseLock,
         disableMouseLock: disableMouseLock,
+        isMouseLock: function() { return mouseLocked; },
 	};
 })();
