@@ -64,23 +64,60 @@ Blind.camera = (function(){
         var box;
         var side;
 
+        var currAngle;
+        var nextAngle;
+        var pauseTime;
+
         function reset() {
             grabbing = false;
             attached = false;
             box = side = null;
+            rotateDriver = null;
+            pauseTime = 0;
         }
 
         function grab() {
             grabbing = true;
         }
 
+        function setSide(_side) {
+            side = _side;
+            if (side == "-y") {
+                nextAngle = -Math.PI/2;
+            }
+            else if (side == "+y") {
+                nextAngle = Math.PI/2;
+            }
+            else if (side == "-x") {
+                nextAngle = Math.PI;
+            }
+            else if (side == "+x") {
+                nextAngle = 0;
+            }
+            pauseTime = 0.5;
+        }
+
+        function normalizeAngle(a) {
+            return Math.atan2(Math.sin(a), Math.cos(a));
+        }
+
         function attach(_box,_side) {
             attached = true;
             box = _box;
-            side = _side;
+            setSide(_side);
+            currAngle = normalizeAngle(angle);
+        }
+
+        function detach() {
+            attached = false;
+            box = side = null;
         }
 
         function move(dx,dy) {
+            // for pausing at the corner
+            if (pauseTime > 0) {
+                return true;
+            }
 
             var minx = box.x-collidePad;
             var maxx = box.x+box.w+collidePad;
@@ -90,24 +127,24 @@ Blind.camera = (function(){
             if (side == "+x" || side == "-x") {
                 if (y + dy <= miny) {
                     y = miny;
-                    side = "-y";
+                    setSide("-y");
                     return true;
                 }
                 else if (y + dy >= maxy) {
                     y = maxy;
-                    side = "+y";
+                    setSide("+y");
                     return true;
                 }
             }
             else if (side == "+y" || side == "-y") {
                 if (x + dx <= minx) {
                     x = minx;
-                    side = "-x";
+                    setSide("-x");
                     return true;
                 }
                 else if (x + dx >= maxx) {
                     x = maxx;
-                    side = "+x";
+                    setSide("+x");
                     return true;
                 }
             }
@@ -121,6 +158,8 @@ Blind.camera = (function(){
         }
 
         function update(dt) {
+            currAngle += (nextAngle - currAngle)*0.2;
+            pauseTime = Math.max(0, pauseTime-dt);
         }
 
         return {
@@ -128,10 +167,13 @@ Blind.camera = (function(){
             grab: grab,
             release: release,
             attach: attach,
+            detach: detach,
             move: move,
+            update: update,
             isGrabbing: function() { return grabbing; },
             isAttached: function() { return attached; },
             getSide: function() { return side; },
+            getAngle: function() { return currAngle; },
         };
     })();
 
@@ -280,6 +322,7 @@ Blind.camera = (function(){
 
         function shoot() {
             if (aimRay) {
+                spider.detach();
                 flyAngle = angle;
                 flying = true;
                 landingPoint = {
@@ -380,26 +423,24 @@ Blind.camera = (function(){
 	};
     var spiderKeyHandler = {
         'press': {
-            'ctrl': function() {
+            'shift': function() {
                 spider.grab();
             },
         },
         'release': {
-            'ctrl': function() {
+            'shift': function() {
                 spider.release();
             },
         },
     };
 	var projKeyHandler = {
 		'press': {
-			'shift': function() {
-				fadeTo2D();
-			},
-		},
-		'release': {
-			'shift': function() {
+			'1': function() {
 				fadeTo1D();
 			},
+            '2': function() {
+				fadeTo2D();
+            },
 		},
 	};
     var hookKeyHandler = {
@@ -530,6 +571,10 @@ Blind.camera = (function(){
 	var collidePad = 0.01;
     function move(dx,dy) {
 
+        if (dx == 0 && dy == 0) {
+            return;
+        }
+
         // will need to fix this
         // (currently assuming that there can be no collision with another
         //  block before we reach the corner of the block.  only true for
@@ -621,6 +666,7 @@ Blind.camera = (function(){
 		}
 
         hook.update(dt);
+        spider.update(dt);
 
         var dx=0,dy=0;
         var speed;
@@ -715,7 +761,12 @@ Blind.camera = (function(){
 	function draw(ctx) {
 		ctx.save();
 		ctx.translate(Blind.canvas.width/2, Blind.canvas.height/2);
-		ctx.rotate(-Math.PI/2-angle);
+        if (spider.isAttached()) {
+            ctx.rotate(-Math.PI/2-spider.getAngle());
+        }
+        else {
+            ctx.rotate(-Math.PI/2-angle);
+        }
 		ctx.translate(-x,-y);
 
 		var p = push.get();
