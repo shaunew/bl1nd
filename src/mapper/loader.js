@@ -42,6 +42,10 @@ Blind.Mapper.loader = (function(){
         setState(state);
 	}
 
+    function openLocal(name) {
+        setState(Blind.assets.json[name]);
+    }
+
 	function openFile(f) {
 		var reader = new FileReader();
 		reader.onload = function(e) {
@@ -79,5 +83,6 @@ Blind.Mapper.loader = (function(){
 		restore: restore,
 		handleOpenFile: handleOpenFile,
 		promptReset: promptReset,
+        openLocal: openLocal,
 	};
 })();

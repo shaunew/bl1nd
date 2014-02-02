@@ -36,6 +36,11 @@ Blind.assets = (function(){
 		"msg_hall02": "img/msg-hall02.png",
 		"msg_corner00": "img/msg-corner00.png",
 		"msg_corner01": "img/msg-corner01.png",
+        "cheat": "img/cheat.png",
+        "msg_room00": "img/msg-room00.png",
+        "msg_room01": "img/msg-room01.png",
+
+        /*
 		"xmas_back": "img/xmas_back.png",
 		"xmas_next": "img/xmas_next.png",
 		"xmas00": "img/xmas00.png",
@@ -46,6 +51,7 @@ Blind.assets = (function(){
 		"xmas05": "img/xmas05.png",
 		"xmas06": "img/xmas06.png",
 		"xmas07": "img/xmas07.png",
+        */
 	};
 
 	var jsonSources = {
@@ -54,7 +60,14 @@ Blind.assets = (function(){
 		"map_intro_wall": "maps/intro-wall.json",
 		"map_intro_hall": "maps/intro-hall.json",
 		"map_intro_corner": "maps/intro-corner.json",
-		"map_wreath": "maps/wreath.json",
+		"map_intro_wall": "maps/intro-wall.json",
+		"map_intro_hall": "maps/intro-hall.json",
+		"map_intro_corner": "maps/intro-corner.json",
+		"map_intro_rooms": "maps/intro-rooms.json",
+        "map_hook_intro": "maps/hook-intro.json",
+        "map_hook_whip": "maps/hook-whip.json",
+        "map_climb_intro": "maps/climb-intro.json",
+        "map_climb_multi": "maps/climb-multi.json",
 	};
 
 	var json = {};

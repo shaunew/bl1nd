@@ -65,6 +65,23 @@ canvas.color-box {
 	</div>
 	<div class="btn-group">
 		<button
+			class="btn dropdown-toggle" data-toggle="dropdown">
+			Levels <span class="caret"></span>
+			</button>
+
+		<ul class="dropdown-menu">
+		    <li><a onclick="Blind.Mapper.loader.openLocal('map_intro_wall')" href="#">Intro Wall</a>
+		    <li><a onclick="Blind.Mapper.loader.openLocal('map_intro_hall')" href="#">Intro Hall</a>
+		    <li><a onclick="Blind.Mapper.loader.openLocal('map_intro_corner')" href="#">Intro Corner</a>
+		    <li><a onclick="Blind.Mapper.loader.openLocal('map_intro_rooms')" href="#">Intro Rooms</a>
+            <li><a onclick="Blind.Mapper.loader.openLocal('map_hook_intro')" href="#">Hook Intro</a>
+            <li><a onclick="Blind.Mapper.loader.openLocal('map_hook_whip')" href="#">Hook Whip</a>
+            <li><a onclick="Blind.Mapper.loader.openLocal('map_climb_intro')" href="#">Climb Intro</a>
+            <li><a onclick="Blind.Mapper.loader.openLocal('map_climb_multi')" href="#">Climb Multi</a>
+		</ul>
+	</div>
+	<div class="btn-group">
+		<button
 			id="edit-btn"
 			onclick="Blind.Mapper.setMode('edit')"
 			class="btn"
