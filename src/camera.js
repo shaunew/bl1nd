@@ -60,9 +60,10 @@ Blind.camera = (function(){
 			ty = y = 0;
 		}
 
-		function setDir(_tx, _ty) {
+		function setDir(_tx, _ty, _offset) {
 			tx = _tx;
 			ty = _ty;
+            offset = _offset || 5;
 		}
 
 		function update(dt) {
@@ -503,6 +504,7 @@ Blind.camera = (function(){
             dx = Math.cos(a);
             dy = Math.sin(a);
             speed = flySpeed;
+            push.setDir(dx,dy,20);
         }
         else {
             var mx = Math.cos(angle);
@@ -529,13 +531,13 @@ Blind.camera = (function(){
                 dy /= dist;
             }
             speed = moveSpeed;
+            push.setDir(dx,dy,5);
         }
         x = collideX(dx*speed*dt);
         y = collideY(dy*speed*dt);
         if (dx != 0 || dy != 0) {
             updateProjection();
         }
-        push.setDir(dx,dy);
         push.update(dt);
 
 		if (projFade < projFadeTarget) {
