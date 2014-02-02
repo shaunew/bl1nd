@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <link href="lib/bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
 <link href="lib/font-awesome/css/font-awesome.min.css" rel="stylesheet" media="screen">
+<link href="lib/keys.css" rel="stylesheet" media="screen">
 <style>
 body {
 	background: #222;
@@ -20,6 +21,10 @@ canvas#c {
 canvas.color-box {
 	width: 12px;
 	height: 12px;
+}
+ul#controls li {
+    line-height: 1.8em;
+    list-style-type: none;
 }
 </style>
 </head>
@@ -130,6 +135,18 @@ canvas.color-box {
 	</div>
 </div>
 <canvas id='c'></canvas>
+
+<span class="light-keys" style="color:#FFF">
+<h5>Play Controls:</h5>
+<ul id="controls">
+<li><kbd>1</kbd> for 1D, <kbd>2</kbd> for 2D.
+<li><kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> to move around.
+<li><kbd><i class="icon-arrow-left"></i></kbd> <kbd><i class="icon-arrow-right"></i></kbd> to look around.
+<li>Hold <kbd>Space</kbd> to aim, and release to shoot hook.
+<li>Hold <kbd>Shift</kbd> to stick to walls.
+<li><kbd>Left Click</kbd> to enable mouse looking and click to shoot hook.
+</ul>
+</span>
 
 </div>
 <script src="lib/jquery/jquery-1.9.1.min.js"></script>
