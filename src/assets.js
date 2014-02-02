@@ -36,9 +36,6 @@ Blind.assets = (function(){
 		"msg_hall02": "img/msg-hall02.png",
 		"msg_corner00": "img/msg-corner00.png",
 		"msg_corner01": "img/msg-corner01.png",
-        "cheat": "img/cheat.png",
-        "msg_room00": "img/msg-room00.png",
-        "msg_room01": "img/msg-room01.png",
 
         /*
 		"xmas_back": "img/xmas_back.png",
