@@ -2,7 +2,7 @@ Blind.Mapper.scene_play = (function(){
 
 	var keyHandler = {
 		'press': {
-			'space': function() {
+			'0': function() {
 				Blind.Mapper.setMode('edit');
 			},
 		},
@@ -13,6 +13,9 @@ Blind.Mapper.scene_play = (function(){
 		Blind.camera.enableViewKeys();
 		Blind.camera.enableMoveKeys();
 		Blind.camera.enableProjKeys();
+        Blind.camera.enableHookKeys();
+        Blind.camera.enableMouseLook();
+        Blind.camera.enableSpiderKeys();
 		Blind.input.addKeyHandler(keyHandler);
 	}
 
@@ -20,6 +23,9 @@ Blind.Mapper.scene_play = (function(){
 		Blind.camera.disableViewKeys();
 		Blind.camera.disableMoveKeys();
 		Blind.camera.disableProjKeys();
+        Blind.camera.disableHookKeys();
+        Blind.camera.disableMouseLook();
+        Blind.camera.disableSpiderKeys();
 		Blind.input.removeKeyHandler(keyHandler);
 	}
 

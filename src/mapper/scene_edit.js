@@ -3,7 +3,7 @@ Blind.Mapper.scene_edit = (function(){
 
 	var keyHandler = {
 		'press': {
-			'space': function() {
+			'0': function() {
 				Blind.Mapper.setMode('play');
 			},
 		},
