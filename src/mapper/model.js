@@ -162,8 +162,23 @@ Blind.Mapper.model = (function(){
 			}
 		}
 
+        function getPanFunc(x,y) {
+            var dx = x - originX;
+            var dy = y - originY;
+            var f = function(x,y) {
+                originX = x - dx;
+                originY = y - dy;
+            };
+            f.useAbs = true;
+            return f;
+        }
+
 		return {
 			start: function(x,y) {
+                var absX = x;
+                var absY = y;
+                x -= originX;
+                y -= originY;
 
 				moveFunc = null;
 				var i,len=boxes.length;
@@ -196,9 +211,25 @@ Blind.Mapper.model = (function(){
 						}
 					}
 				}
+
+                if (!moveFunc) {
+                    moveFunc = getPanFunc(absX, absY);
+                }
 			},
 			move: function(x,y) {
-				moveFunc && moveFunc(x,y);
+                var absX = x;
+                var absY = y;
+                x -= originX;
+                y -= originY;
+                
+                if (moveFunc) {
+				    if (moveFunc.useAbs) {
+                        moveFunc(absX,absY);
+                    }
+                    else {
+                        moveFunc(x,y);
+                    }
+                }
 			},
 			end: function(x,y) {
 				moveFunc = null;
@@ -265,6 +296,7 @@ Blind.Mapper.model = (function(){
 		clearControls();
 		enableMouse();
 		enableKeys();
+        originX = originY = 0;
 	}
 
 	function cleanup() {
@@ -281,7 +313,11 @@ Blind.Mapper.model = (function(){
 		}
 	}
 
+    var originX, originY;
+
 	function draw(ctx) {
+        ctx.save();
+        ctx.translate(originX, originY);
 		//var drawPersp = playerSelected;
 		var drawPersp = true;
 		var i,len = boxes.length;
@@ -328,6 +364,7 @@ Blind.Mapper.model = (function(){
 			ctx.strokeStyle = "rgba(0,0,0,0.5)";
 			ctx.stroke();
 		}
+        ctx.restore();
 	}
 
 	return {
