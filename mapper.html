@@ -2,6 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
+<title>BL1ND - a 1D game</title>
 <link href="lib/bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
 <link href="lib/font-awesome/css/font-awesome.min.css" rel="stylesheet" media="screen">
 <link href="lib/keys.css" rel="stylesheet" media="screen">
@@ -26,6 +27,9 @@ ul#controls li {
     line-height: 1.8em;
     list-style-type: none;
 }
+div.edit-control {
+    visibility: hidden;
+}
 </style>
 </head>
 <body>
@@ -34,6 +38,9 @@ ul#controls li {
 
 <input style="display:none" type="file" id="open-file" />
 <div class="btn-toolbar" id="toolbar">
+	<div class="btn-group">
+    <h1>BL1ND</h1>
+    </div>
 	<div class="btn-group">
 		<button
 			onclick="Blind.Mapper.createScreenshot()"
@@ -97,7 +104,7 @@ ul#controls li {
 			class="btn"
 			>Play</button>
 	</div>
-	<div class="btn-group">
+	<div class="btn-group edit-control">
 		<button
 			class="btn"
 			onclick="Blind.Mapper.model.addBox()"
@@ -111,7 +118,7 @@ ul#controls li {
 			onclick="Blind.Mapper.model.duplicateBox()"
 			><i class="icon-asterisk"></i></button>
 	</div>
-	<div class="btn-group">
+	<div class="btn-group edit-control">
 		<button
 			class="btn dropdown-toggle" data-toggle="dropdown">
 			Color <span class="caret"></span>
@@ -127,7 +134,7 @@ ul#controls li {
 			<li> <a onclick="Blind.Mapper.model.setColor('white')" href="#" ><canvas class="color-box" style="background-color:#FFF"></canvas> White</a> </li>
 		</ul>
 	</div>
-	<div class="btn-group">
+	<div class="btn-group edit-control">
 		<button
 			onclick="Blind.Mapper.model.renameBox()"
 			class="btn"

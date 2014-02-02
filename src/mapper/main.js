@@ -25,6 +25,8 @@ Blind.Mapper.setMode = function(mode) {
 
 	$('#'+mode+'-btn').addClass('active');
 
+    $('div.edit-control').css({'visibility': (mode=='edit' ? 'visible' : 'hidden')});
+
 	Blind.setScene(Blind.Mapper['scene_'+mode]);
 }
 
