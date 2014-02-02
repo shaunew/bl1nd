@@ -15,6 +15,7 @@ Blind.scene_freerun = (function(){
 		Blind.camera.enableMoveKeys();
 		Blind.camera.enableProjKeys();
         Blind.camera.enableHookKeys();
+        Blind.camera.enableMouseLook();
 		Blind.input.addKeyHandler(keyHandler);
 	}
 
@@ -23,6 +24,7 @@ Blind.scene_freerun = (function(){
 		Blind.camera.disableMoveKeys();
 		Blind.camera.disableProjKeys();
         Blind.camera.disableHookKeys();
+        Blind.camera.disableMouseLook();
 		Blind.input.removeKeyHandler(keyHandler);
 	}
 

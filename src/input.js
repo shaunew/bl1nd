@@ -101,6 +101,47 @@ Blind.input = (function(){
 		mouseHelper('cancel',x,y);
 	};
 
+    // ======================= MOUSE LOCK ==========================
+
+    var mouseLocked = false;
+    var canMouseLock = false;
+    function pointerlockchange() {
+        document.pointerLockElement = document.pointerLockElement || document.mozPointerLockElement || document.webkitPointerLockElement;
+        if (!!document.pointerLockElement) {
+            mouseLocked = true;
+        }
+        else {
+            mouseLocked = false;
+        }
+    }
+    function pointerlockerror() {
+        console.log("couldn't lock mouse");
+    }
+    function requestMouseLock() {
+        var canvas = Blind.canvas;
+        canvas.requestPointerLock = canvas.requestPointerLock || canvas.mozRequestPointerLock || canvas.webkitRequestPointerLock;
+        canvas.requestPointerLock();
+    }
+    function exitMouseLock() {
+        document.exitPointerLock = document.exitPointerLock || document.mozExitPointerLock || document.webkitExitPointerLock;
+        document.exitPointerLock();
+    }
+    function enableMouseLock() {
+        canMouseLock = true;
+        Blind.canvas.addEventListener('click', requestMouseLock);
+    }
+    function disableMouseLock() {
+        canMouseLock = false;
+        Blind.canvas.removeEventListener('click', requestMouseLock);
+        exitMouseLock();
+    }
+    function mouseLockMove(e) {
+        var dx = e.movementX || e.mozMovementX || e.webkitMovementX || 0;
+        var dy = e.movementY || e.mozMovementY || e.webkitMovementY || 0;
+        mouseHelper('lockmove', dx, dy);
+    }
+
+
 	var borderSize = 0;
 	function setBorderSize(s) {
 		borderSize = s;
@@ -138,12 +179,20 @@ Blind.input = (function(){
 				evt.preventDefault();
 			};
 		}
+
 		canvas.addEventListener('mousedown',	wrapMouseFunc(mouseStart));
 		canvas.addEventListener('mousemove',	wrapMouseFunc(mouseMove));
 		canvas.addEventListener('mouseup',		wrapMouseFunc(mouseEnd));
 		canvas.addEventListener('mouseout',		wrapMouseFunc(mouseCancel));
 
-		
+		canvas.addEventListener('mousemove', mouseLockMove);
+        document.addEventListener('pointerlockerror', pointerlockerror);
+        document.addEventListener('mozpointerlockerror', pointerlockerror);
+        document.addEventListener('webkitpointerlockerror', pointerlockerror);
+        document.addEventListener('pointerlockchange', pointerlockchange);
+        document.addEventListener('mozpointerlockchange', pointerlockchange);
+        document.addEventListener('webkitpointerlockchange', pointerlockchange);
+
 		function wrapKeyFunc(f) {
 			var names = {
 				8: 'backspace',
@@ -197,5 +246,7 @@ Blind.input = (function(){
 		addKeyHandler: addKeyHandler,
 		removeKeyHandler: removeKeyHandler,
 		setBorderSize: setBorderSize,
+        enableMouseLock: enableMouseLock,
+        disableMouseLock: disableMouseLock,
 	};
 })();

@@ -314,6 +314,18 @@ Blind.camera = (function(){
             },
         },
     };
+    var mouseLookHandler = {
+        'start': function() {
+            hook.startAiming();
+        },
+        'end': function() {
+            hook.shoot();
+        },
+        'lockmove': function(dx,dy) {
+            var radiansPerPixels = 1/100;
+            angle += dx * radiansPerPixels;
+        },
+    };
 	function enableViewKeys()  { Blind.input.addKeyHandler(    viewKeyHandler); }
 	function disableViewKeys() { Blind.input.removeKeyHandler( viewKeyHandler); }
 	function enableMoveKeys()  { Blind.input.addKeyHandler(    moveKeyHandler); }
@@ -329,6 +341,14 @@ Blind.camera = (function(){
     function disableHookKeys() {
         Blind.input.removeKeyHandler(hookKeyHandler);
         hook.reset();
+    }
+    function enableMouseLook() {
+        Blind.input.addMouseHandler(mouseLookHandler);
+        Blind.input.enableMouseLock(); // requires user to click canvas to complete mouse lock
+    }
+    function disableMouseLook() {
+        Blind.input.removeMouseHandler(mouseLookHandler);
+        Blind.input.disableMouseLock();
     }
 
 	// ========================== COLLISION FUNCTIONS  =============================
@@ -655,6 +675,8 @@ Blind.camera = (function(){
 		disableProjKeys: disableProjKeys,
 		enableHookKeys: enableHookKeys,
 		disableHookKeys: disableHookKeys,
+        enableMouseLook: enableMouseLook,
+        disableMouseLook: disableMouseLook,
 		setPosition: setPosition,
 		setAngle: setAngle,
 		update: update,
