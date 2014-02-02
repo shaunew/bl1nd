@@ -16,8 +16,8 @@ Blind.Mapper.loader = (function(){
 	}
 
 	function setState(state) {
-		Blind.Mapper.setMode('edit');
 		Blind.Mapper.model.setMapState(state);
+		Blind.Mapper.setMode('play');
 		backup();
 	}
 
@@ -36,10 +36,11 @@ Blind.Mapper.loader = (function(){
         var state = null;
 		try {
             state = JSON.parse(window.localStorage.mapperState);
+            setState(state);
 		}
 		catch (e) {
+            openLocal('map_intro_rooms');
 		}
-        setState(state);
 	}
 
     function openLocal(name) {
