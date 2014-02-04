@@ -157,8 +157,33 @@ Blind.camera = (function(){
             reset();
         }
 
+        function signedAngleDiff2(a0,a1) {
+            var max = 2*Math.PI;
+            var da = (a1-a0) % max;
+            if (Math.abs(da) > max/2) {
+                // da += (da > 0) ? -max : max;
+
+                // Trey's mystical closed-form equation
+                da = (2*da % max) - da;
+            }
+            return da;
+        }
+
+        function signedAngleDiff(a0,a1) {
+            // normalize angles by converting them to vectors
+            var x0 = Math.cos(a0), y0 = Math.sin(a0);
+            var x1 = Math.cos(a1), y1 = Math.sin(a1);
+
+            // p2 = rotate p1 to a coordinate frame such that p0 is on positive x axis
+            var x2 = x0*x1 + y0*y1;
+            var y2 = x0*y1 - y0*x1;
+
+            // atan2 returns signed angle from positive x axis
+            return Math.atan2(y2,x2);
+        }
+
         function update(dt) {
-            currAngle += (nextAngle - currAngle)*0.2;
+            currAngle += signedAngleDiff2(currAngle, nextAngle) * 0.2;
             pauseTime = Math.max(0, pauseTime-dt);
         }
 
