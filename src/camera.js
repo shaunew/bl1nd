@@ -1,20 +1,20 @@
 Blind.camera = (function(){
 
-	// ========================== CAMERA STATE  =============================
+    // ========================== CAMERA STATE  =============================
     var state = {
         x: 0,
         y: 0,
         angle: -Math.PI/2,
     };
 
-	function setPosition(x,y) {
-		state.x = x;
-		state.y = y;
-	}
+    function setPosition(x,y) {
+        state.x = x;
+        state.y = y;
+    }
 
-	function setAngle(angle) {
-		state.angle = angle;
-	}
+    function setAngle(angle) {
+        state.angle = angle;
+    }
 
     function addAngle(da) {
         if (!spider.isAttached()) {
@@ -22,49 +22,49 @@ Blind.camera = (function(){
         }
     }
 
-	function print() {
-		console.log(state.x,state.y,state.angle);
-	}
+    function print() {
+        console.log(state.x,state.y,state.angle);
+    }
 
-	// speed (per second)
-	var moveSpeed = 50;
+    // speed (per second)
+    var moveSpeed = 50;
     var flySpeed = moveSpeed * 10;
-	var angleSpeed = Math.PI;
+    var angleSpeed = Math.PI;
 
-	var collideFlash = (function(){
+    var collideFlash = (function(){
 
-		var alphaDriver = new Blind.InterpDriver(
-			Blind.makeInterp('linear', [1,0], [0,0.25]),
-			{
-				freezeAtEnd: true,
-			});
+        var alphaDriver = new Blind.InterpDriver(
+            Blind.makeInterp('linear', [1,0], [0,0.25]),
+            {
+                freezeAtEnd: true,
+            });
 
-		function init() {
-			alphaDriver.skipToEnd();
-		}
+        function init() {
+            alphaDriver.skipToEnd();
+        }
 
-		function trigger() {
-			alphaDriver.reset();
-		}
+        function trigger() {
+            alphaDriver.reset();
+        }
 
-		function update(dt) {
-			alphaDriver.step(dt);
+        function update(dt) {
+            alphaDriver.step(dt);
             if (spider.isAttached()) {
                 alphaDriver.reset();
             }
-		}
+        }
 
-		function getValue() {
-			return alphaDriver.val;
-		}
+        function getValue() {
+            return alphaDriver.val;
+        }
 
-		return {
-			init: init,
-			trigger: trigger,
-			update: update,
-			getValue: getValue,
-		};
-	})();
+        return {
+            init: init,
+            trigger: trigger,
+            update: update,
+            getValue: getValue,
+        };
+    })();
 
     var replay = (function(){
         return {
@@ -222,71 +222,71 @@ Blind.camera = (function(){
         };
     })();
 
-	var push = (function(){
-		var x,y;
-		var tx, ty;
-		var offset = 5;
-		var factor = 0.2;
+    var push = (function(){
+        var x,y;
+        var tx, ty;
+        var offset = 5;
+        var factor = 0.2;
 
-		function reset() {
-			tx = x = 0;
-			ty = y = 0;
-		}
+        function reset() {
+            tx = x = 0;
+            ty = y = 0;
+        }
 
-		function setDir(_tx, _ty, _offset) {
-			tx = _tx;
-			ty = _ty;
+        function setDir(_tx, _ty, _offset) {
+            tx = _tx;
+            ty = _ty;
             offset = _offset || 5;
-		}
+        }
 
-		function update(dt) {
-			x += (tx-x)*factor;
-			y += (ty-y)*factor;
-		}
+        function update(dt) {
+            x += (tx-x)*factor;
+            y += (ty-y)*factor;
+        }
 
-		function get() {
-			return {x:x*offset, y:y*offset};
-		}
+        function get() {
+            return {x:x*offset, y:y*offset};
+        }
 
-		return {
-			reset: reset,
-			setDir: setDir,
-			update: update,
-			get: get,
-		};
-	})();
+        return {
+            reset: reset,
+            setDir: setDir,
+            update: update,
+            get: get,
+        };
+    })();
 
-	var tilt = (function(){
-		var value=0, target=0;
-		var offset = Math.PI/16;
-		var factor = 0.2;
+    var tilt = (function(){
+        var value=0, target=0;
+        var offset = Math.PI/16;
+        var factor = 0.2;
 
-		function tiltLeft() {
-			target = -offset;
-		}
-		function tiltRight() {
-			target = offset;
-		}
-		function reset() {
-			target = 0;
-		}
+        function tiltLeft() {
+            target = -offset;
+        }
+        function tiltRight() {
+            target = offset;
+        }
+        function reset() {
+            target = 0;
+        }
 
-		function update(dt) {
-			value += (target-value)*factor;
-		}
+        function update(dt) {
+            value += (target-value)*factor;
+        }
 
-		function getValue() {
-			return value;
-		}
+        function getValue() {
+            return value;
+        }
 
-		return {
-			tiltLeft: tiltLeft,
-			reset: reset,
-			tiltRight: tiltRight,
-			update: update,
-			getValue: getValue,
-		};
-	})();
+        return {
+            tiltLeft: tiltLeft,
+            reset: reset,
+            tiltRight: tiltRight,
+            update: update,
+            getValue: getValue,
+        };
+    })();
 
     var projector = (function(){
         var val, target, speed;
@@ -314,23 +314,23 @@ Blind.camera = (function(){
             target = 0.75;
         }
 
-		function draw1D(ctx) {
-			ctx.save();
-			ctx.setTransform(1,0,0,1,0,0);
-			var img = Blind.assets.images["eye"];
-			ctx.drawImage(img,Blind.canvas.width/2 - img.width/2, Blind.canvas.height/2 - img.height/2);
-			ctx.restore();
+        function draw1D(ctx) {
+            ctx.save();
+            ctx.setTransform(1,0,0,1,0,0);
+            var img = Blind.assets.images["eye"];
+            ctx.drawImage(img,Blind.canvas.width/2 - img.width/2, Blind.canvas.height/2 - img.height/2);
+            ctx.restore();
 
             var radius = 100;
             var lineWidth = 30;
 
-			Blind.drawArcs(ctx, {
-				x: state.x,
-				y: state.y,
-				radius: radius,
-				lineWidth: lineWidth,
-				projection: projection,
-			});
+            Blind.drawArcs(ctx, {
+                x: state.x,
+                y: state.y,
+                radius: radius,
+                lineWidth: lineWidth,
+                projection: projection,
+            });
 
             var ray = hook.getAimRay();
             if (ray) {
@@ -364,40 +364,40 @@ Blind.camera = (function(){
                 ctx.stroke();
             }
 
-			var collideAlpha = collideFlash.getValue();
-			if (collideAlpha) {
-				ctx.fillStyle = "rgba(200,200,200," + collideAlpha +")";
-				ctx.beginPath();
-				ctx.arc(state.x,state.y,radius-lineWidth/2,0,Math.PI*2);
-				ctx.fill();
-			}
+            var collideAlpha = collideFlash.getValue();
+            if (collideAlpha) {
+                ctx.fillStyle = "rgba(200,200,200," + collideAlpha +")";
+                ctx.beginPath();
+                ctx.arc(state.x,state.y,radius-lineWidth/2,0,Math.PI*2);
+                ctx.fill();
+            }
 
-			ctx.strokeStyle = "rgba(0,0,0,0.5)";
-			ctx.beginPath();
-			var arange = Math.PI/2;
-			var a=state.angle+tilt.getValue()+arange/2;
-			ctx.lineWidth = lineWidth+1;
-			ctx.arc(state.x,state.y, radius, a, a + (2*Math.PI - arange));
-			ctx.stroke();
-		}
+            ctx.strokeStyle = "rgba(0,0,0,0.5)";
+            ctx.beginPath();
+            var arange = Math.PI/2;
+            var a=state.angle+tilt.getValue()+arange/2;
+            ctx.lineWidth = lineWidth+1;
+            ctx.arc(state.x,state.y, radius, a, a + (2*Math.PI - arange));
+            ctx.stroke();
+        }
 
-		function draw2D(ctx) {
-			map.draw(ctx);
+        function draw2D(ctx) {
+            map.draw(ctx);
 
-			var alpha = ctx.globalAlpha;
+            var alpha = ctx.globalAlpha;
 
-			ctx.globalAlpha = ctx.globalAlpha * 0.3;
-			Blind.drawCones(ctx, {
-				x: state.x,
-				y: state.y,
-				projection: projection,
-			});
-			ctx.globalAlpha = alpha;
+            ctx.globalAlpha = ctx.globalAlpha * 0.3;
+            Blind.drawCones(ctx, {
+                x: state.x,
+                y: state.y,
+                projection: projection,
+            });
+            ctx.globalAlpha = alpha;
 
-			ctx.beginPath();
-			ctx.arc(state.x,state.y,3,0,Math.PI*2);
-			ctx.fillStyle = "#FFF";
-			ctx.fill();
+            ctx.beginPath();
+            ctx.arc(state.x,state.y,3,0,Math.PI*2);
+            ctx.fillStyle = "#FFF";
+            ctx.fill();
 
             if (hook.isFlying()) {
                 ctx.strokeStyle = "#FFF";
@@ -408,7 +408,7 @@ Blind.camera = (function(){
                 ctx.lineTo(p.x, p.y);
                 ctx.stroke();
             }
-		}
+        }
 
         function draw(ctx) {
             if (val == 0) {
@@ -435,31 +435,31 @@ Blind.camera = (function(){
         };
     })();
 
-	// ========================== MAP & PROJECTION  =============================
+    // ========================== MAP & PROJECTION  =============================
 
-	var map;
-	var projection;
+    var map;
+    var projection;
 
-	function init(_map) {
-		map = _map;
-		setPosition(map.player.x, map.player.y);
-		setAngle(map.player.angle);
+    function init(_map) {
+        map = _map;
+        setPosition(map.player.x, map.player.y);
+        setAngle(map.player.angle);
         spindle.sync();
-		push.reset();
+        push.reset();
         spider.reset();
-		collideFlash.init();
-		collideAction.reset();
+        collideFlash.init();
+        collideAction.reset();
         projector.reset();
-		updateProjection();
-	}
+        updateProjection();
+    }
 
-	function updateProjection() {
-		projection = Blind.getProjection({
-			x: state.x,
-			y: state.y,
-			boxes: map.boxes,
-		});
-	}
+    function updateProjection() {
+        projection = Blind.getProjection({
+            x: state.x,
+            y: state.y,
+            boxes: map.boxes,
+        });
+    }
 
     // ========================== HOOK FUNCTIONS ===============================
 
@@ -530,68 +530,68 @@ Blind.camera = (function(){
         };
     })();
 
-	// ========================== CONTROLLER FUNCTIONS =============================
-	
-	var controls = {
-		"turnLeft": false,
-		"turnRight": false,
-		"moveUp": false,
-		"moveDown": false,
-	};
-	function clearControls() {
-		var name;
-		for (name in controls) {
-			controls[name] = false;
-		}
-	};
-	var viewKeyHandler = {
-		'press': {
-			'left': function() {
-				controls["turnLeft"] = true;
-			},
-			'right': function() {
-				controls["turnRight"] = true;
-			},
-		},
-		'release': {
-			'left': function() {
-				controls["turnLeft"] = false;
-			},
-			'right': function() {
-				controls["turnRight"] = false;
-			},
-		}
-	};
-	var moveKeyHandler = {
-		'press': {
-			'w': function() {
-				controls["moveUp"] = true;
-			},
-			's': function() {
-				controls["moveDown"] = true;
-			},
-			'a': function() {
-				controls["moveLeft"] = true;
-			},
-			'd': function() {
-				controls["moveRight"] = true;
-			},
-		},
-		'release': {
-			'w': function() {
-				controls["moveUp"] = false;
-			},
-			's': function() {
-				controls["moveDown"] = false;
-			},
-			'a': function() {
-				controls["moveLeft"] = false;
-			},
-			'd': function() {
-				controls["moveRight"] = false;
-			},
-		}
-	};
+    // ========================== CONTROLLER FUNCTIONS =============================
+    
+    var controls = {
+        "turnLeft": false,
+        "turnRight": false,
+        "moveUp": false,
+        "moveDown": false,
+    };
+    function clearControls() {
+        var name;
+        for (name in controls) {
+            controls[name] = false;
+        }
+    };
+    var viewKeyHandler = {
+        'press': {
+            'left': function() {
+                controls["turnLeft"] = true;
+            },
+            'right': function() {
+                controls["turnRight"] = true;
+            },
+        },
+        'release': {
+            'left': function() {
+                controls["turnLeft"] = false;
+            },
+            'right': function() {
+                controls["turnRight"] = false;
+            },
+        }
+    };
+    var moveKeyHandler = {
+        'press': {
+            'w': function() {
+                controls["moveUp"] = true;
+            },
+            's': function() {
+                controls["moveDown"] = true;
+            },
+            'a': function() {
+                controls["moveLeft"] = true;
+            },
+            'd': function() {
+                controls["moveRight"] = true;
+            },
+        },
+        'release': {
+            'w': function() {
+                controls["moveUp"] = false;
+            },
+            's': function() {
+                controls["moveDown"] = false;
+            },
+            'a': function() {
+                controls["moveLeft"] = false;
+            },
+            'd': function() {
+                controls["moveRight"] = false;
+            },
+        }
+    };
     var spiderKeyHandler = {
         'press': {
             'shift': function() {
@@ -604,16 +604,16 @@ Blind.camera = (function(){
             },
         },
     };
-	var projKeyHandler = {
-		'press': {
-			'1': function() {
-				projector.fadeTo1D();
-			},
-            '2': function() {
-				projector.fadeTo2D();
+    var projKeyHandler = {
+        'press': {
+            '1': function() {
+                projector.fadeTo1D();
             },
-		},
-	};
+            '2': function() {
+                projector.fadeTo2D();
+            },
+        },
+    };
     var hookKeyHandler = {
         'press': {
             'space': function() {
@@ -642,15 +642,15 @@ Blind.camera = (function(){
             addAngle(dx * radiansPerPixels);
         },
     };
-	function enableViewKeys()  { Blind.input.addKeyHandler(    viewKeyHandler); }
-	function disableViewKeys() { Blind.input.removeKeyHandler( viewKeyHandler); }
-	function enableMoveKeys()  { Blind.input.addKeyHandler(    moveKeyHandler); }
-	function disableMoveKeys() { Blind.input.removeKeyHandler( moveKeyHandler); }
-	function enableProjKeys()  { Blind.input.addKeyHandler(    projKeyHandler); }
-	function disableProjKeys() {
-		Blind.input.removeKeyHandler( projKeyHandler);
-		projector.fadeTo1D();
-	}
+    function enableViewKeys()  { Blind.input.addKeyHandler(    viewKeyHandler); }
+    function disableViewKeys() { Blind.input.removeKeyHandler( viewKeyHandler); }
+    function enableMoveKeys()  { Blind.input.addKeyHandler(    moveKeyHandler); }
+    function disableMoveKeys() { Blind.input.removeKeyHandler( moveKeyHandler); }
+    function enableProjKeys()  { Blind.input.addKeyHandler(    projKeyHandler); }
+    function disableProjKeys() {
+        Blind.input.removeKeyHandler( projKeyHandler);
+        projector.fadeTo1D();
+    }
     function enableHookKeys() {
         Blind.input.addKeyHandler(hookKeyHandler);
     }
@@ -673,77 +673,77 @@ Blind.camera = (function(){
         Blind.input.removeKeyHandler(spiderKeyHandler);
     }
 
-	// ========================== COLLISION FUNCTIONS  =============================
+    // ========================== COLLISION FUNCTIONS  =============================
 
-	var collideAction = (function(){
-		var triggers = {};
+    var collideAction = (function(){
+        var triggers = {};
 
-		function reset() {
-			triggers = {};
-		}
+        function reset() {
+            triggers = {};
+        }
 
-		function clear(name) {
-			triggers[name] = [];
-		}
-		
-		function add(name, action) {
-			var t = triggers[name];
-			if (t) {
-				t.push(action);
-			}
-			else {
-				triggers[name] = [action];
-			}
-		}
+        function clear(name) {
+            triggers[name] = [];
+        }
+        
+        function add(name, action) {
+            var t = triggers[name];
+            if (t) {
+                t.push(action);
+            }
+            else {
+                triggers[name] = [action];
+            }
+        }
 
-		function remove(name, action) {
-			var t = triggers[name];
-			if (t) {
-				var i = 0;
-				while (i < t.length) {
-					if (t[i] == action) {
-						t.splice(i,1);
-					}
-					else {
-						i++;
-					}
-				}
-			}
-		}
+        function remove(name, action) {
+            var t = triggers[name];
+            if (t) {
+                var i = 0;
+                while (i < t.length) {
+                    if (t[i] == action) {
+                        t.splice(i,1);
+                    }
+                    else {
+                        i++;
+                    }
+                }
+            }
+        }
 
-		function exec(name) {
-			var t = triggers[name];
-			if (t) {
-				var i,len=t.length;
-				for (i=0; i<len; i++) {
-					t[i]();
-				}
-				clear(name);
-			}
-		}
-		
-		return {
-			reset: reset,
-			add: add,
-			remove: remove,
-			exec: exec,
-		};
-	})();
+        function exec(name) {
+            var t = triggers[name];
+            if (t) {
+                var i,len=t.length;
+                for (i=0; i<len; i++) {
+                    t[i]();
+                }
+                clear(name);
+            }
+        }
+        
+        return {
+            reset: reset,
+            add: add,
+            remove: remove,
+            exec: exec,
+        };
+    })();
 
-	function addCollideAction(name, action) {
-		collideAction.add(name, action);
-	}
-	function onCollide(box,side) {
-		collideFlash.trigger();
-		collideAction.exec(box.name);
+    function addCollideAction(name, action) {
+        collideAction.add(name, action);
+    }
+    function onCollide(box,side) {
+        collideFlash.trigger();
+        collideAction.exec(box.name);
         collideAction.exec("any");
 
         if (spider.isGrabbing()) {
             spider.attach(box,side);
         }
-	}
+    }
 
-	var collidePad = 0.01;
+    var collidePad = 0.01;
     function move(dx,dy) {
 
         if (dx == 0 && dy == 0) {
@@ -830,18 +830,18 @@ Blind.camera = (function(){
         state.y = collideY(state.x,state.y,dy);
     }
 
-	// ========================== MAIN FUNCTIONS  =============================
+    // ========================== MAIN FUNCTIONS  =============================
 
-	function update(dt) {
+    function update(dt) {
         var da = 0;
-		if (controls["turnLeft"]) {
-			da -= angleSpeed*dt;
+        if (controls["turnLeft"]) {
+            da -= angleSpeed*dt;
             tilt.tiltLeft();
-		}
-		if (controls["turnRight"]) {
-			da += angleSpeed*dt;
+        }
+        if (controls["turnRight"]) {
+            da += angleSpeed*dt;
             tilt.tiltRight();
-		}
+        }
         if (da == 0) {
             tilt.reset();
         }
@@ -929,48 +929,48 @@ Blind.camera = (function(){
         }
         push.update(dt);
         projector.update(dt);
-		tilt.update(dt);
-		collideFlash.update(dt);
+        tilt.update(dt);
+        collideFlash.update(dt);
         spindle.update(dt);
-	}
+    }
 
-	function draw(ctx) {
-		ctx.save();
-		ctx.translate(Blind.canvas.width/2, Blind.canvas.height/2);
+    function draw(ctx) {
+        ctx.save();
+        ctx.translate(Blind.canvas.width/2, Blind.canvas.height/2);
         if (spider.isAttached()) {
             ctx.rotate(-Math.PI/2-spindle.getAngle());
         }
         else {
             ctx.rotate(-Math.PI/2-state.angle);
         }
-		ctx.translate(-state.x,-state.y);
+        ctx.translate(-state.x,-state.y);
 
-		var p = push.get();
-		ctx.translate(p.x,p.y);
+        var p = push.get();
+        ctx.translate(p.x,p.y);
         projector.draw(ctx);
-		ctx.restore();
-	}
+        ctx.restore();
+    }
 
-	return {
-		init: init,
-		updateProjection: updateProjection,
-		enableViewKeys: enableViewKeys,
-		disableViewKeys: disableViewKeys,
-		enableMoveKeys: enableMoveKeys,
-		disableMoveKeys: disableMoveKeys,
-		enableProjKeys: enableProjKeys,
-		disableProjKeys: disableProjKeys,
-		enableHookKeys: enableHookKeys,
-		disableHookKeys: disableHookKeys,
+    return {
+        init: init,
+        updateProjection: updateProjection,
+        enableViewKeys: enableViewKeys,
+        disableViewKeys: disableViewKeys,
+        enableMoveKeys: enableMoveKeys,
+        disableMoveKeys: disableMoveKeys,
+        enableProjKeys: enableProjKeys,
+        disableProjKeys: disableProjKeys,
+        enableHookKeys: enableHookKeys,
+        disableHookKeys: disableHookKeys,
         enableMouseLook: enableMouseLook,
         disableMouseLook: disableMouseLook,
         enableSpiderKeys: enableSpiderKeys,
         disableSpiderKeys: disableSpiderKeys,
-		setPosition: setPosition,
-		setAngle: setAngle,
-		update: update,
-		draw: draw,
-		addCollideAction: addCollideAction,
-		print: print,
-	};
+        setPosition: setPosition,
+        setAngle: setAngle,
+        update: update,
+        draw: draw,
+        addCollideAction: addCollideAction,
+        print: print,
+    };
 })();

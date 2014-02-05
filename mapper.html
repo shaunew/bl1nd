@@ -8,20 +8,20 @@
 <link href="lib/keys.css" rel="stylesheet" media="screen">
 <style>
 body {
-	background: #222;
-	margin: 0;
-	padding: 0;
+    background: #222;
+    margin: 0;
+    padding: 0;
 }
 div#container {
-	margin:auto;
-	width:720px;
+    margin:auto;
+    width:720px;
 }
 canvas#c {
-	display: block;
+    display: block;
 }
 canvas.color-box {
-	width: 12px;
-	height: 12px;
+    width: 12px;
+    height: 12px;
 }
 ul#controls li {
     line-height: 1.8em;
@@ -38,108 +38,108 @@ div.edit-control {
 
 <input style="display:none" type="file" id="open-file" />
 <div class="btn-toolbar" id="toolbar">
-	<div class="btn-group">
+    <div class="btn-group">
     <h1>BL1ND</h1>
     </div>
-	<div class="btn-group">
-		<button
-			onclick="Blind.Mapper.createScreenshot()"
-			class="btn dropdown-toggle" data-toggle="dropdown">
-			File <span class="caret"></span>
-			</button>
+    <div class="btn-group">
+        <button
+            onclick="Blind.Mapper.createScreenshot()"
+            class="btn dropdown-toggle" data-toggle="dropdown">
+            File <span class="caret"></span>
+            </button>
 
-		<ul class="dropdown-menu">
-			<li>
-				<a
-					onclick="Blind.Mapper.loader.promptReset()"
-					href="#"
-					>New</a>
-			</li>
-			<li>
-				<a
-					onclick="$('#open-file').click()"
-					href="#"
-					>Open</a>
-			</li>
-			<li>
-				<a
-					id="save-button"
-					href="#"
-					>Save</a>
-			</li>
-			<li>
-				<a
-					id="screenshot-button"
-					href="#"
-					>Screenshot</a>
-			</li>
-		</ul>
-	</div>
-	<div class="btn-group">
-		<button
-			class="btn dropdown-toggle" data-toggle="dropdown">
-			Levels <span class="caret"></span>
-			</button>
+        <ul class="dropdown-menu">
+            <li>
+                <a
+                    onclick="Blind.Mapper.loader.promptReset()"
+                    href="#"
+                    >New</a>
+            </li>
+            <li>
+                <a
+                    onclick="$('#open-file').click()"
+                    href="#"
+                    >Open</a>
+            </li>
+            <li>
+                <a
+                    id="save-button"
+                    href="#"
+                    >Save</a>
+            </li>
+            <li>
+                <a
+                    id="screenshot-button"
+                    href="#"
+                    >Screenshot</a>
+            </li>
+        </ul>
+    </div>
+    <div class="btn-group">
+        <button
+            class="btn dropdown-toggle" data-toggle="dropdown">
+            Levels <span class="caret"></span>
+            </button>
 
-		<ul class="dropdown-menu">
-		    <li><a onclick="Blind.Mapper.loader.openLocal('map_intro_wall')" href="#">Intro Wall</a>
-		    <li><a onclick="Blind.Mapper.loader.openLocal('map_intro_hall')" href="#">Intro Hall</a>
-		    <li><a onclick="Blind.Mapper.loader.openLocal('map_intro_corner')" href="#">Intro Corner</a>
-		    <li><a onclick="Blind.Mapper.loader.openLocal('map_intro_rooms')" href="#">Intro Rooms</a>
+        <ul class="dropdown-menu">
+            <li><a onclick="Blind.Mapper.loader.openLocal('map_intro_wall')" href="#">Intro Wall</a>
+            <li><a onclick="Blind.Mapper.loader.openLocal('map_intro_hall')" href="#">Intro Hall</a>
+            <li><a onclick="Blind.Mapper.loader.openLocal('map_intro_corner')" href="#">Intro Corner</a>
+            <li><a onclick="Blind.Mapper.loader.openLocal('map_intro_rooms')" href="#">Intro Rooms</a>
             <li><a onclick="Blind.Mapper.loader.openLocal('map_hook_intro')" href="#">Hook Intro</a>
             <li><a onclick="Blind.Mapper.loader.openLocal('map_hook_whip')" href="#">Hook Whip</a>
             <li><a onclick="Blind.Mapper.loader.openLocal('map_climb_intro')" href="#">Climb Intro</a>
             <li><a onclick="Blind.Mapper.loader.openLocal('map_climb_multi')" href="#">Climb Multi</a>
-		</ul>
-	</div>
-	<div class="btn-group">
-		<button
-			id="edit-btn"
-			onclick="Blind.Mapper.setMode('edit')"
-			class="btn"
-			>Edit</button>
-		<button
-			id="play-btn"
-			onclick="Blind.Mapper.setMode('play')"
-			class="btn"
-			>Play</button>
-	</div>
-	<div class="btn-group edit-control">
-		<button
-			class="btn"
-			onclick="Blind.Mapper.model.addBox()"
-			><i class="icon-plus-sign"></i></button>
-		<button
-			class="btn"
-			onclick="Blind.Mapper.model.removeBox()"
-			><i class="icon-minus-sign"></i></button>
-		<button
-			class="btn"
-			onclick="Blind.Mapper.model.duplicateBox()"
-			><i class="icon-asterisk"></i></button>
-	</div>
-	<div class="btn-group edit-control">
-		<button
-			class="btn dropdown-toggle" data-toggle="dropdown">
-			Color <span class="caret"></span>
-			</button>
+        </ul>
+    </div>
+    <div class="btn-group">
+        <button
+            id="edit-btn"
+            onclick="Blind.Mapper.setMode('edit')"
+            class="btn"
+            >Edit</button>
+        <button
+            id="play-btn"
+            onclick="Blind.Mapper.setMode('play')"
+            class="btn"
+            >Play</button>
+    </div>
+    <div class="btn-group edit-control">
+        <button
+            class="btn"
+            onclick="Blind.Mapper.model.addBox()"
+            ><i class="icon-plus-sign"></i></button>
+        <button
+            class="btn"
+            onclick="Blind.Mapper.model.removeBox()"
+            ><i class="icon-minus-sign"></i></button>
+        <button
+            class="btn"
+            onclick="Blind.Mapper.model.duplicateBox()"
+            ><i class="icon-asterisk"></i></button>
+    </div>
+    <div class="btn-group edit-control">
+        <button
+            class="btn dropdown-toggle" data-toggle="dropdown">
+            Color <span class="caret"></span>
+            </button>
 
-		<ul class="dropdown-menu">
-			<li> <a onclick="Blind.Mapper.model.setColor('red')" href="#" ><canvas class="color-box" style="background-color:#cc0000"></canvas> Red</a> </li>
-			<li> <a onclick="Blind.Mapper.model.setColor('orange')" href="#" ><canvas class="color-box" style="background-color:#f57900"></canvas> Orange</a> </li>
-			<li> <a onclick="Blind.Mapper.model.setColor('yellow')"    href="#" ><canvas class="color-box" style="background-color:#edd400"></canvas> Yellow</a> </li>
-			<li> <a onclick="Blind.Mapper.model.setColor('green')"  href="#" ><canvas class="color-box" style="background-color:#73d216"></canvas> Green</a> </li>
-			<li> <a onclick="Blind.Mapper.model.setColor('blue')"   href="#" ><canvas class="color-box" style="background-color:#3465a4"></canvas> Blue</a> </li>
-			<li> <a onclick="Blind.Mapper.model.setColor('purple')" href="#" ><canvas class="color-box" style="background-color:#75507b"></canvas> Purple</a> </li>
-			<li> <a onclick="Blind.Mapper.model.setColor('white')" href="#" ><canvas class="color-box" style="background-color:#FFF"></canvas> White</a> </li>
-		</ul>
-	</div>
-	<div class="btn-group edit-control">
-		<button
-			onclick="Blind.Mapper.model.renameBox()"
-			class="btn"
-			><i class="icon-tag"></i> <span id="objectName"></span></button>
-	</div>
+        <ul class="dropdown-menu">
+            <li> <a onclick="Blind.Mapper.model.setColor('red')" href="#" ><canvas class="color-box" style="background-color:#cc0000"></canvas> Red</a> </li>
+            <li> <a onclick="Blind.Mapper.model.setColor('orange')" href="#" ><canvas class="color-box" style="background-color:#f57900"></canvas> Orange</a> </li>
+            <li> <a onclick="Blind.Mapper.model.setColor('yellow')"    href="#" ><canvas class="color-box" style="background-color:#edd400"></canvas> Yellow</a> </li>
+            <li> <a onclick="Blind.Mapper.model.setColor('green')"  href="#" ><canvas class="color-box" style="background-color:#73d216"></canvas> Green</a> </li>
+            <li> <a onclick="Blind.Mapper.model.setColor('blue')"   href="#" ><canvas class="color-box" style="background-color:#3465a4"></canvas> Blue</a> </li>
+            <li> <a onclick="Blind.Mapper.model.setColor('purple')" href="#" ><canvas class="color-box" style="background-color:#75507b"></canvas> Purple</a> </li>
+            <li> <a onclick="Blind.Mapper.model.setColor('white')" href="#" ><canvas class="color-box" style="background-color:#FFF"></canvas> White</a> </li>
+        </ul>
+    </div>
+    <div class="btn-group edit-control">
+        <button
+            onclick="Blind.Mapper.model.renameBox()"
+            class="btn"
+            ><i class="icon-tag"></i> <span id="objectName"></span></button>
+    </div>
 </div>
 <canvas id='c'></canvas>
 

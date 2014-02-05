@@ -1,5 +1,5 @@
 
-Blind.scene_intro_hall = (function(){
+Blind.scene_hook_intro = (function(){
     var script;
     var map;
 
@@ -7,7 +7,7 @@ Blind.scene_intro_hall = (function(){
         Blind.lid.reset();
         Blind.lid.open();
 
-        map = new Blind.Map(Blind.assets.json["map_intro_hall"]);
+        map = new Blind.Map(Blind.assets.json["map_hook_intro"]);
 
         Blind.camera.init(map);
         Blind.camera.enableViewKeys();
@@ -18,24 +18,18 @@ Blind.scene_intro_hall = (function(){
             {
                 time: 1,
                 action: function() {
-                    Blind.caption.show('msg_hall00', 2);
-                },
-            },
-            {
-                dt: 4,
-                action: function() {
-                    Blind.caption.show('msg_hall01', 2);
+                    Blind.caption.show('msg_corner00', 2);
                 },
             },
         ]);
 
         Blind.camera.addCollideAction('me', function() {
-            Blind.caption.show('msg_hall02',2);
+            Blind.caption.show('msg_corner01',2);
             script = new Blind.TimedScript([
                 {
                     time: 4,
                     action: function() {
-                        Blind.setScene(Blind.scene_intro_corner);
+                        Blind.setScene(Blind.scene_hook_intro);
                     },
                 },
             ]);

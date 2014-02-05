@@ -8,3 +8,19 @@ X(30 min) collision feedback
 X(40 min) attract mode with shift to transition from 1d to 2d 
 -(40 min) new game, continue game
 -(4 hours) first level 
+
+============
+
+dash command (space)
+relative camera
+absolute camera
+spider camera (shift+space to attach to a wall)
+
+mapper zoom/pan for building larger maps
+
+============
+
+fix hook bug from launching you into space
+    - (update direction toward absolute position instead of sticking with initial direction toward position)
+lock orientation when sticking to walls
+
