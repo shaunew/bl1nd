@@ -276,15 +276,152 @@ Blind.camera = (function(){
 		};
 	})();
 
-	var projFade=0;
-	var projFadeTarget=0;
-	var projFadeSpeed = 4;
-	function fadeTo1D() {
-		projFadeTarget = 0;
-	}
-	function fadeTo2D() {
-		projFadeTarget = 0.75;
-	}
+    var projector = (function(){
+        var val, target, speed;
+
+        function reset() {
+            val = 0;
+            target = 0;
+            speed = 4;
+        }
+
+        function update(dt) {
+            if (val < target) {
+                val = Math.min(target, val + speed*dt);
+            }
+            else if (val > target) {
+                val = Math.max(target, val - speed*dt);
+            }
+        }
+
+        function fadeTo1D() {
+            target = 0;
+        }
+
+        function fadeTo2D() {
+            target = 0.75;
+        }
+
+		function draw1D(ctx) {
+			ctx.save();
+			ctx.setTransform(1,0,0,1,0,0);
+			var img = Blind.assets.images["eye"];
+			ctx.drawImage(img,Blind.canvas.width/2 - img.width/2, Blind.canvas.height/2 - img.height/2);
+			ctx.restore();
+
+            var radius = 100;
+            var lineWidth = 30;
+
+			Blind.drawArcs(ctx, {
+				x: state.x,
+				y: state.y,
+				radius: radius,
+				lineWidth: lineWidth,
+				projection: projection,
+			});
+
+            var ray = hook.getAimRay();
+            if (ray) {
+                (function(){
+                    var r = radius + lineWidth/2+ 2;
+                    var r2 = r + lineWidth/2;
+                    var da = Math.PI/16;
+                    ctx.beginPath();
+                    ctx.moveTo(
+                        state.x+r2*Math.cos(state.angle),
+                        state.y+r2*Math.sin(state.angle));
+                    ctx.arc(
+                        state.x,
+                        state.y,
+                        r,
+                        state.angle-da,
+                        state.angle+da);
+                    ctx.closePath();
+                    ctx.fillStyle = ray.color;
+                    ctx.fill();
+                })();
+            }
+
+            if (hook.isFlying()) {
+                var a = hook.getFlyAngle();
+                var da = Math.random()*Math.PI/64;
+                ctx.beginPath();
+                ctx.arc(state.x,state.y,radius,a-da,a+da);
+                ctx.lineWidth = lineWidth;
+                ctx.strokeStyle = "#FFF";
+                ctx.stroke();
+            }
+
+			var collideAlpha = collideFlash.getValue();
+			if (collideAlpha) {
+				ctx.fillStyle = "rgba(200,200,200," + collideAlpha +")";
+				ctx.beginPath();
+				ctx.arc(state.x,state.y,radius-lineWidth/2,0,Math.PI*2);
+				ctx.fill();
+			}
+
+			ctx.strokeStyle = "rgba(0,0,0,0.5)";
+			ctx.beginPath();
+			var arange = Math.PI/2;
+			var a=state.angle+tilt.getValue()+arange/2;
+			ctx.lineWidth = lineWidth+1;
+			ctx.arc(state.x,state.y, radius, a, a + (2*Math.PI - arange));
+			ctx.stroke();
+		}
+
+		function draw2D(ctx) {
+			map.draw(ctx);
+
+			var alpha = ctx.globalAlpha;
+
+			ctx.globalAlpha = ctx.globalAlpha * 0.3;
+			Blind.drawCones(ctx, {
+				x: state.x,
+				y: state.y,
+				projection: projection,
+			});
+			ctx.globalAlpha = alpha;
+
+			ctx.beginPath();
+			ctx.arc(state.x,state.y,3,0,Math.PI*2);
+			ctx.fillStyle = "#FFF";
+			ctx.fill();
+
+            if (hook.isFlying()) {
+                ctx.strokeStyle = "#FFF";
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(state.x,state.y);
+                var p = hook.getLandingPoint();
+                ctx.lineTo(p.x, p.y);
+                ctx.stroke();
+            }
+		}
+
+        function draw(ctx) {
+            if (val == 0) {
+                draw1D(ctx);
+            }
+            else if (val == 1) {
+                draw2D(ctx);
+            }
+            else {
+                ctx.globalAlpha = 1-val;
+                draw1D(ctx);
+                ctx.globalAlpha = val;
+                draw2D(ctx);
+                ctx.globalAlpha = 1;
+            }
+        }
+
+        return {
+            update: update,
+            draw: draw,
+            fadeTo1D: fadeTo1D,
+            fadeTo2D: fadeTo2D,
+            reset: reset,
+        };
+    })();
 
 	// ========================== MAP & PROJECTION  =============================
 
@@ -299,6 +436,7 @@ Blind.camera = (function(){
         spider.reset();
 		collideFlash.init();
 		collideAction.reset();
+        projector.reset();
 		updateProjection();
 	}
 
@@ -460,10 +598,10 @@ Blind.camera = (function(){
 	var projKeyHandler = {
 		'press': {
 			'1': function() {
-				fadeTo1D();
+				projector.fadeTo1D();
 			},
             '2': function() {
-				fadeTo2D();
+				projector.fadeTo2D();
             },
 		},
 	};
@@ -502,7 +640,7 @@ Blind.camera = (function(){
 	function enableProjKeys()  { Blind.input.addKeyHandler(    projKeyHandler); }
 	function disableProjKeys() {
 		Blind.input.removeKeyHandler( projKeyHandler);
-		fadeTo1D();
+		projector.fadeTo1D();
 	}
     function enableHookKeys() {
         Blind.input.addKeyHandler(hookKeyHandler);
@@ -774,14 +912,7 @@ Blind.camera = (function(){
             updateProjection();
         }
         push.update(dt);
-
-		if (projFade < projFadeTarget) {
-			projFade = Math.min(projFadeTarget, projFade + projFadeSpeed*dt);
-		}
-		else if (projFade > projFadeTarget) {
-			projFade = Math.max(projFadeTarget, projFade - projFadeSpeed*dt);
-		}
-
+        projector.update(dt);
 		tilt.update(dt);
 		collideFlash.update(dt);
 	}
@@ -799,117 +930,7 @@ Blind.camera = (function(){
 
 		var p = push.get();
 		ctx.translate(p.x,p.y);
-
-		function draw1D() {
-			ctx.save();
-			ctx.setTransform(1,0,0,1,0,0);
-			var img = Blind.assets.images["eye"];
-			ctx.drawImage(img,Blind.canvas.width/2 - img.width/2, Blind.canvas.height/2 - img.height/2);
-			ctx.restore();
-
-            var radius = 100;
-            var lineWidth = 30;
-
-			Blind.drawArcs(ctx, {
-				x: state.x,
-				y: state.y,
-				radius: radius,
-				lineWidth: lineWidth,
-				projection: projection,
-			});
-
-            var ray = hook.getAimRay();
-            if (ray) {
-                (function(){
-                    var r = radius + lineWidth/2+ 2;
-                    var r2 = r + lineWidth/2;
-                    var da = Math.PI/16;
-                    ctx.beginPath();
-                    ctx.moveTo(
-                        state.x+r2*Math.cos(state.angle),
-                        state.y+r2*Math.sin(state.angle));
-                    ctx.arc(
-                        state.x,
-                        state.y,
-                        r,
-                        state.angle-da,
-                        state.angle+da);
-                    ctx.closePath();
-                    ctx.fillStyle = ray.color;
-                    ctx.fill();
-                })();
-            }
-
-            if (hook.isFlying()) {
-                var a = hook.getFlyAngle();
-                var da = Math.random()*Math.PI/64;
-                ctx.beginPath();
-                ctx.arc(state.x,state.y,radius,a-da,a+da);
-                ctx.lineWidth = lineWidth;
-                ctx.strokeStyle = "#FFF";
-                ctx.stroke();
-            }
-
-			var collideAlpha = collideFlash.getValue();
-			if (collideAlpha) {
-				ctx.fillStyle = "rgba(200,200,200," + collideAlpha +")";
-				ctx.beginPath();
-				ctx.arc(state.x,state.y,radius-lineWidth/2,0,Math.PI*2);
-				ctx.fill();
-			}
-
-			ctx.strokeStyle = "rgba(0,0,0,0.5)";
-			ctx.beginPath();
-			var arange = Math.PI/2;
-			var a=state.angle+tilt.getValue()+arange/2;
-			ctx.lineWidth = lineWidth+1;
-			ctx.arc(state.x,state.y, radius, a, a + (2*Math.PI - arange));
-			ctx.stroke();
-		}
-
-		function draw2D() {
-			map.draw(ctx);
-
-			var alpha = ctx.globalAlpha;
-
-			ctx.globalAlpha = ctx.globalAlpha * 0.3;
-			Blind.drawCones(ctx, {
-				x: state.x,
-				y: state.y,
-				projection: projection,
-			});
-			ctx.globalAlpha = alpha;
-
-			ctx.beginPath();
-			ctx.arc(state.x,state.y,3,0,Math.PI*2);
-			ctx.fillStyle = "#FFF";
-			ctx.fill();
-
-            if (hook.isFlying()) {
-                ctx.strokeStyle = "#FFF";
-                ctx.lineWidth = 1;
-                ctx.beginPath();
-                ctx.moveTo(state.x,state.y);
-                var p = hook.getLandingPoint();
-                ctx.lineTo(p.x, p.y);
-                ctx.stroke();
-            }
-		}
-
-		if (projFade == 0) {
-			draw1D();
-		}
-		else if (projFade == 1) {
-			draw2D();
-		}
-		else {
-			ctx.globalAlpha = 1-projFade;
-			draw1D();
-			ctx.globalAlpha = projFade;
-			draw2D();
-			ctx.globalAlpha = 1;
-		}
-
+        projector.draw(ctx);
 		ctx.restore();
 	}
 
