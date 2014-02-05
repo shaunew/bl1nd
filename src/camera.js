@@ -16,6 +16,12 @@ Blind.camera = (function(){
 		state.angle = angle;
 	}
 
+    function addAngle(da) {
+        if (!spider.isAttached()) {
+            state.angle += da;
+        }
+    }
+
 	function print() {
 		console.log(state.x,state.y,state.angle);
 	}
@@ -65,6 +71,44 @@ Blind.camera = (function(){
         };
     })();
 
+    var spindle = (function(){
+        var angle;
+
+        // Thanks to Trey Wilson!
+        function getShortestAngleDist(a0,a1) {
+            var max = 2*Math.PI;
+
+            // get normalized distance between angles
+            var da = (a1-a0) % max;
+
+            /*
+            Choose the shorter distance:
+            If |da| > 180º, then we want to turn around and go the shorter distance:
+            For example:
+                If da = 270º, then we want da = -90º instead
+                If da = -270º, then we want da = 90º instead
+            */
+
+            // (Trey's neat formula that produces the shorter distance.
+            //  It works regardless of how "%" outputs sign, so it is portable.)
+            return (2*da % max) - da;
+        }
+
+        function sync() {
+            angle = state.angle;
+        }
+
+        function update(dt) {
+            angle += getShortestAngleDist(angle, state.angle)*0.2;
+        }
+
+        return {
+            sync: sync,
+            update: update,
+            getAngle: function() { return angle; },
+        };
+    })();
+
     var spider = (function(){
         
         var grabbing;
@@ -72,8 +116,6 @@ Blind.camera = (function(){
         var box;
         var side;
 
-        var currAngle;
-        var nextAngle;
         var pauseTime;
 
         function reset() {
@@ -90,29 +132,24 @@ Blind.camera = (function(){
 
         function setSide(_side) {
             side = _side;
+            var normAngle;
             if (side == "-y") {
-                nextAngle = -Math.PI/2;
+                normAngle = -Math.PI/2;
             }
             else if (side == "+y") {
-                nextAngle = Math.PI/2;
+                normAngle = Math.PI/2;
             }
             else if (side == "-x") {
-                nextAngle = Math.PI;
+                normAngle = Math.PI;
             }
             else if (side == "+x") {
-                nextAngle = 0;
+                normAngle = 0;
             }
+            state.angle = normAngle;
             pauseTime = 0.5;
         }
 
-        function normalizeAngle(a) {
-            return Math.atan2(Math.sin(a), Math.cos(a));
-        }
-
         function attach(_box,_side) {
-            if (!attached) {
-                currAngle = normalizeAngle(state.angle);
-            }
             attached = true;
             box = _box;
             setSide(_side);
@@ -167,33 +204,7 @@ Blind.camera = (function(){
             reset();
         }
 
-        function signedAngleDiff2(a0,a1) {
-            var max = 2*Math.PI;
-            var da = (a1-a0) % max;
-            if (Math.abs(da) > max/2) {
-                // da += (da > 0) ? -max : max;
-
-                // Trey's mystical closed-form equation
-                da = (2*da % max) - da;
-            }
-            return da;
-        }
-
-        function signedAngleDiff(a0,a1) {
-            // normalize angles by converting them to vectors
-            var x0 = Math.cos(a0), y0 = Math.sin(a0);
-            var x1 = Math.cos(a1), y1 = Math.sin(a1);
-
-            // p2 = rotate p1 to a coordinate frame such that p0 is on positive x axis
-            var x2 = x0*x1 + y0*y1;
-            var y2 = x0*y1 - y0*x1;
-
-            // atan2 returns signed angle from positive x axis
-            return Math.atan2(y2,x2);
-        }
-
         function update(dt) {
-            currAngle += signedAngleDiff2(currAngle, nextAngle) * 0.2;
             pauseTime = Math.max(0, pauseTime-dt);
         }
 
@@ -208,7 +219,6 @@ Blind.camera = (function(){
             isGrabbing: function() { return grabbing; },
             isAttached: function() { return attached; },
             getSide: function() { return side; },
-            getAngle: function() { return currAngle; },
         };
     })();
 
@@ -434,6 +444,7 @@ Blind.camera = (function(){
 		map = _map;
 		setPosition(map.player.x, map.player.y);
 		setAngle(map.player.angle);
+        spindle.sync();
 		push.reset();
         spider.reset();
 		collideFlash.init();
@@ -537,21 +548,17 @@ Blind.camera = (function(){
 		'press': {
 			'left': function() {
 				controls["turnLeft"] = true;
-				tilt.tiltLeft();
 			},
 			'right': function() {
 				controls["turnRight"] = true;
-				tilt.tiltRight();
 			},
 		},
 		'release': {
 			'left': function() {
 				controls["turnLeft"] = false;
-				tilt.reset();
 			},
 			'right': function() {
 				controls["turnRight"] = false;
-				tilt.reset();
 			},
 		}
 	};
@@ -632,7 +639,7 @@ Blind.camera = (function(){
         },
         'lockmove': function(dx,dy) {
             var radiansPerPixels = 1/100;
-            state.angle += dx * radiansPerPixels;
+            addAngle(dx * radiansPerPixels);
         },
     };
 	function enableViewKeys()  { Blind.input.addKeyHandler(    viewKeyHandler); }
@@ -826,12 +833,19 @@ Blind.camera = (function(){
 	// ========================== MAIN FUNCTIONS  =============================
 
 	function update(dt) {
+        var da = 0;
 		if (controls["turnLeft"]) {
-			state.angle -= angleSpeed*dt;
+			da -= angleSpeed*dt;
+            tilt.tiltLeft();
 		}
 		if (controls["turnRight"]) {
-			state.angle += angleSpeed*dt;
+			da += angleSpeed*dt;
+            tilt.tiltRight();
 		}
+        if (da == 0) {
+            tilt.reset();
+        }
+        addAngle(da);
 
         hook.update(dt);
         spider.update(dt);
@@ -917,13 +931,14 @@ Blind.camera = (function(){
         projector.update(dt);
 		tilt.update(dt);
 		collideFlash.update(dt);
+        spindle.update(dt);
 	}
 
 	function draw(ctx) {
 		ctx.save();
 		ctx.translate(Blind.canvas.width/2, Blind.canvas.height/2);
         if (spider.isAttached()) {
-            ctx.rotate(-Math.PI/2-spider.getAngle());
+            ctx.rotate(-Math.PI/2-spindle.getAngle());
         }
         else {
             ctx.rotate(-Math.PI/2-state.angle);
