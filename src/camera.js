@@ -110,10 +110,12 @@ Blind.camera = (function(){
         }
 
         function attach(_box,_side) {
+            if (!attached) {
+                currAngle = normalizeAngle(state.angle);
+            }
             attached = true;
             box = _box;
             setSide(_side);
-            currAngle = normalizeAngle(state.angle);
         }
 
         function detach() {
