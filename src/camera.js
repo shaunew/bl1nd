@@ -1,15 +1,23 @@
 Blind.camera = (function(){
 
 	// ========================== CAMERA STATE  =============================
+    var state = {
+        x: 0,
+        y: 0,
+        angle: -Math.PI/2,
+    };
 
-	// position
-	var x=0,y=0;
+	function setPosition(x,y) {
+		state.x = x;
+		state.y = y;
+	}
 
-	// orientation
-	var angle=-Math.PI/2;
+	function setAngle(angle) {
+		state.angle = angle;
+	}
 
 	function print() {
-		console.log(x,y,angle);
+		console.log(state.x,state.y,state.angle);
 	}
 
 	// speed (per second)
@@ -105,7 +113,7 @@ Blind.camera = (function(){
             attached = true;
             box = _box;
             setSide(_side);
-            currAngle = normalizeAngle(angle);
+            currAngle = normalizeAngle(state.angle);
         }
 
         function detach() {
@@ -125,25 +133,25 @@ Blind.camera = (function(){
             var maxy = box.y+box.h+collidePad;
 
             if (side == "+x" || side == "-x") {
-                if (y + dy <= miny) {
-                    y = miny;
+                if (state.y + dy <= miny) {
+                    state.y = miny;
                     setSide("-y");
                     return true;
                 }
-                else if (y + dy >= maxy) {
-                    y = maxy;
+                else if (state.y + dy >= maxy) {
+                    state.y = maxy;
                     setSide("+y");
                     return true;
                 }
             }
             else if (side == "+y" || side == "-y") {
-                if (x + dx <= minx) {
-                    x = minx;
+                if (state.x + dx <= minx) {
+                    state.x = minx;
                     setSide("-x");
                     return true;
                 }
-                else if (x + dx >= maxx) {
-                    x = maxx;
+                else if (state.x + dx >= maxx) {
+                    state.x = maxx;
                     setSide("+x");
                     return true;
                 }
@@ -268,15 +276,6 @@ Blind.camera = (function(){
 		};
 	})();
 
-	function setPosition(_x,_y) {
-		x = _x;
-		y = _y;
-	}
-
-	function setAngle(_angle) {
-		angle = _angle;
-	}
-
 	var projFade=0;
 	var projFadeTarget=0;
 	var projFadeSpeed = 4;
@@ -305,8 +304,8 @@ Blind.camera = (function(){
 
 	function updateProjection() {
 		projection = Blind.getProjection({
-			x: x,
-			y: y,
+			x: state.x,
+			y: state.y,
 			boxes: map.boxes,
 		});
 	}
@@ -328,7 +327,7 @@ Blind.camera = (function(){
         }
 
         function refreshAimRay() {
-            aimRay = projection.castRayAtAngle(angle);
+            aimRay = projection.castRayAtAngle(state.angle);
         }
 
         function startAiming() {
@@ -348,11 +347,11 @@ Blind.camera = (function(){
         function shoot() {
             if (aimRay) {
                 spider.detach();
-                flyAngle = angle;
+                flyAngle = state.angle;
                 flying = true;
                 landingPoint = {
-                    x: x + Math.cos(angle) * aimRay.dist,
-                    y: y + Math.sin(angle) * aimRay.dist,
+                    x: state.x + Math.cos(state.angle) * aimRay.dist,
+                    y: state.y + Math.sin(state.angle) * aimRay.dist,
                 };
                 collideAction.add("any", stopShooting);
             }
@@ -493,7 +492,7 @@ Blind.camera = (function(){
         },
         'lockmove': function(dx,dy) {
             var radiansPerPixels = 1/100;
-            angle += dx * radiansPerPixels;
+            state.angle += dx * radiansPerPixels;
         },
     };
 	function enableViewKeys()  { Blind.input.addKeyHandler(    viewKeyHandler); }
@@ -614,7 +613,7 @@ Blind.camera = (function(){
             }
         }
 
-        function collideX(dx) {
+        function collideX(x,y,dx) {
             if (dx == 0) {
                 return x;
             }
@@ -647,7 +646,7 @@ Blind.camera = (function(){
             return x+dx;
         }
 
-        function collideY(dy) {
+        function collideY(x,y,dy) {
             if (dy == 0) {
                 return y;
             }
@@ -680,18 +679,18 @@ Blind.camera = (function(){
             return y+dy;
         }
 
-        x = collideX(dx);
-        y = collideY(dy);
+        state.x = collideX(state.x,state.y,dx);
+        state.y = collideY(state.x,state.y,dy);
     }
 
 	// ========================== MAIN FUNCTIONS  =============================
 
 	function update(dt) {
 		if (controls["turnLeft"]) {
-			angle -= angleSpeed*dt;
+			state.angle -= angleSpeed*dt;
 		}
 		if (controls["turnRight"]) {
-			angle += angleSpeed*dt;
+			state.angle += angleSpeed*dt;
 		}
 
         hook.update(dt);
@@ -744,8 +743,8 @@ Blind.camera = (function(){
             push.setDir(dx,dy,5);
         }
         else {
-            var mx = Math.cos(angle);
-            var my = Math.sin(angle);
+            var mx = Math.cos(state.angle);
+            var my = Math.sin(state.angle);
             if (controls["moveUp"]) {
                 dx += mx;
                 dy += my;
@@ -794,9 +793,9 @@ Blind.camera = (function(){
             ctx.rotate(-Math.PI/2-spider.getAngle());
         }
         else {
-            ctx.rotate(-Math.PI/2-angle);
+            ctx.rotate(-Math.PI/2-state.angle);
         }
-		ctx.translate(-x,-y);
+		ctx.translate(-state.x,-state.y);
 
 		var p = push.get();
 		ctx.translate(p.x,p.y);
@@ -812,8 +811,8 @@ Blind.camera = (function(){
             var lineWidth = 30;
 
 			Blind.drawArcs(ctx, {
-				x: x,
-				y: y,
+				x: state.x,
+				y: state.y,
 				radius: radius,
 				lineWidth: lineWidth,
 				projection: projection,
@@ -826,8 +825,15 @@ Blind.camera = (function(){
                     var r2 = r + lineWidth/2;
                     var da = Math.PI/16;
                     ctx.beginPath();
-                    ctx.moveTo(x+r2*Math.cos(angle), y+r2*Math.sin(angle));
-                    ctx.arc(x,y,r, angle-da, angle+da);
+                    ctx.moveTo(
+                        state.x+r2*Math.cos(state.angle),
+                        state.y+r2*Math.sin(state.angle));
+                    ctx.arc(
+                        state.x,
+                        state.y,
+                        r,
+                        state.angle-da,
+                        state.angle+da);
                     ctx.closePath();
                     ctx.fillStyle = ray.color;
                     ctx.fill();
@@ -838,7 +844,7 @@ Blind.camera = (function(){
                 var a = hook.getFlyAngle();
                 var da = Math.random()*Math.PI/64;
                 ctx.beginPath();
-                ctx.arc(x,y,radius,a-da,a+da);
+                ctx.arc(state.x,state.y,radius,a-da,a+da);
                 ctx.lineWidth = lineWidth;
                 ctx.strokeStyle = "#FFF";
                 ctx.stroke();
@@ -848,16 +854,16 @@ Blind.camera = (function(){
 			if (collideAlpha) {
 				ctx.fillStyle = "rgba(200,200,200," + collideAlpha +")";
 				ctx.beginPath();
-				ctx.arc(x,y,radius-lineWidth/2,0,Math.PI*2);
+				ctx.arc(state.x,state.y,radius-lineWidth/2,0,Math.PI*2);
 				ctx.fill();
 			}
 
 			ctx.strokeStyle = "rgba(0,0,0,0.5)";
 			ctx.beginPath();
 			var arange = Math.PI/2;
-			var a=angle+tilt.getValue()+arange/2;
+			var a=state.angle+tilt.getValue()+arange/2;
 			ctx.lineWidth = lineWidth+1;
-			ctx.arc(x,y, radius, a, a + (2*Math.PI - arange));
+			ctx.arc(state.x,state.y, radius, a, a + (2*Math.PI - arange));
 			ctx.stroke();
 		}
 
@@ -868,14 +874,14 @@ Blind.camera = (function(){
 
 			ctx.globalAlpha = ctx.globalAlpha * 0.3;
 			Blind.drawCones(ctx, {
-				x: x,
-				y: y,
+				x: state.x,
+				y: state.y,
 				projection: projection,
 			});
 			ctx.globalAlpha = alpha;
 
 			ctx.beginPath();
-			ctx.arc(x,y,3,0,Math.PI*2);
+			ctx.arc(state.x,state.y,3,0,Math.PI*2);
 			ctx.fillStyle = "#FFF";
 			ctx.fill();
 
@@ -883,7 +889,7 @@ Blind.camera = (function(){
                 ctx.strokeStyle = "#FFF";
                 ctx.lineWidth = 1;
                 ctx.beginPath();
-                ctx.moveTo(x,y);
+                ctx.moveTo(state.x,state.y);
                 var p = hook.getLandingPoint();
                 ctx.lineTo(p.x, p.y);
                 ctx.stroke();
