@@ -1,1 +1,3 @@
-A continuation of <http://github.com/shaunew/bl1nd-ld28>
+A continuation of <http://github.com/shaunlebron/bl1nd-ld28>
+
+__NOTE__: Project on hold.
